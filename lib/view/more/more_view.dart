@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:foodbridge-volunteers/view/more/about_us_view.dart';
-import 'package:foodbridge-volunteers/view/more/inbox_view.dart';
-import 'package:foodbridge-volunteers/view/offer/delivery_history.dart';
-import 'package:foodbridge-volunteers/view/payment/payment_history_view.dart';
-// import 'package:foodbridge-volunteers/view/more/payment_details_view.dart';
+import 'package:foodbridge_volunteers_flutter/view/more/about_us_view.dart';
+import 'package:foodbridge_volunteers_flutter/view/more/inbox_view.dart';
+import 'package:foodbridge_volunteers_flutter/view/offer/delivery_history.dart';
+import 'package:foodbridge_volunteers_flutter/view/payment/payment_history_view.dart';
+// import 'package:foodbridge_volunteers_flutter/view/more/payment_details_view.dart';
 
 import '../../common/color_extension.dart';
 // import '../../common/service_call.dart';

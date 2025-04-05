@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:foodbridge-volunteers/common_widget/round_button.dart';
-import 'package:foodbridge-volunteers/view/home/home_view.dart';
+import 'package:foodbridge_volunteers_flutter/common_widget/round_button.dart';
+import 'package:foodbridge_volunteers_flutter/view/home/home_view.dart';
 import '../../common/color_extension.dart';
 
 class CheckoutMessageView extends StatefulWidget {

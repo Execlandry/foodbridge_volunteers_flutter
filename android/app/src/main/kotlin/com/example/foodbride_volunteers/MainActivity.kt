@@ -1,4 +1,4 @@
-package com.example.foodbridge-volunteers
+package com.example.foodbridge_volunteers_flutter
 
 import io.flutter.embedding.android.FlutterActivity
 

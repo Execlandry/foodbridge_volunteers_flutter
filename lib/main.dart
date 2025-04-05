@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
-import 'package:foodbridge-volunteers/view/on_boarding/startup_view.dart';
-import 'package:foodbridge-volunteers/view/payment/keys.dart';
+import 'package:foodbridge_volunteers_flutter/view/on_boarding/startup_view.dart';
+import 'package:foodbridge_volunteers_flutter/view/payment/keys.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

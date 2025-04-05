@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:foodbridge-volunteers/view/login/login_view.dart';
-import 'package:foodbridge-volunteers/view/login/sign_up_view.dart';
+import 'package:foodbridge_volunteers_flutter/view/login/login_view.dart';
+import 'package:foodbridge_volunteers_flutter/view/login/sign_up_view.dart';
 
 import '../../common/color_extension.dart';
 import '../../common_widget/round_button.dart';

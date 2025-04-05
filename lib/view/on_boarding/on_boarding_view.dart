@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:foodbridge-volunteers/common/color_extension.dart';
-import 'package:foodbridge-volunteers/common_widget/round_button.dart';
-import 'package:foodbridge-volunteers/view/main_tabview/main_tabview.dart';
+import 'package:foodbridge_volunteers_flutter/common/color_extension.dart';
+import 'package:foodbridge_volunteers_flutter/common_widget/round_button.dart';
+import 'package:foodbridge_volunteers_flutter/view/main_tabview/main_tabview.dart';
 
 class OnBoardingView extends StatefulWidget {
   const OnBoardingView({super.key});

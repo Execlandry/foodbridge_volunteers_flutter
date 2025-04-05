@@ -1,13 +1,13 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:foodbridge-volunteers/view/payment/payment.dart';
-// import 'package:foodbridge-volunteers/view/payment/qrcode_view.dart';
+import 'package:foodbridge_volunteers_flutter/view/payment/payment.dart';
+// import 'package:foodbridge_volunteers_flutter/view/payment/qrcode_view.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
 import 'package:http/http.dart' as http;
-import 'package:foodbridge-volunteers/common_widget/round_button.dart';
-import 'package:foodbridge-volunteers/common_widget/round_textfield.dart';
+import 'package:foodbridge_volunteers_flutter/common_widget/round_button.dart';
+import 'package:foodbridge_volunteers_flutter/common_widget/round_textfield.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 
 import '../../common/color_extension.dart';

@@ -4,9 +4,9 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:location/location.dart';
 import 'package:http/http.dart' as http;
-import 'package:foodbridge-volunteers/common_widget/round_button.dart';
-import 'package:foodbridge-volunteers/common_widget/round_textfield.dart';
-import 'package:foodbridge-volunteers/view/navigation/navigate_delivery_view.dart';
+import 'package:foodbridge_volunteers_flutter/common_widget/round_button.dart';
+import 'package:foodbridge_volunteers_flutter/common_widget/round_textfield.dart';
+import 'package:foodbridge_volunteers_flutter/view/navigation/navigate_delivery_view.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 
 import '../../common/color_extension.dart';

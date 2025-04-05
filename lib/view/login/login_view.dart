@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:foodbridge-volunteers/common/color_extension.dart';
+import 'package:foodbridge_volunteers_flutter/common/color_extension.dart';
 import '../../common_widget/round_button.dart';
 import '../../common_widget/round_icon_button.dart';
 import '../../common_widget/round_textfield.dart';

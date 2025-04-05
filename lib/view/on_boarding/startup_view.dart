@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:foodbridge-volunteers/common/color_extension.dart';
-import 'package:foodbridge-volunteers/view/login/welcome_view.dart';
+import 'package:foodbridge_volunteers_flutter/common/color_extension.dart';
+import 'package:foodbridge_volunteers_flutter/view/login/welcome_view.dart';
 
 class StartupView extends StatefulWidget {
   const StartupView({super.key});

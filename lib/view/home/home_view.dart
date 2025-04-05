@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:foodbridge-volunteers/common/color_extension.dart';
-import 'package:foodbridge-volunteers/common_widget/round_textfield.dart';
-import 'package:foodbridge-volunteers/view/maps/current_location_view.dart';
-import 'package:foodbridge-volunteers/view/menu/item_details_view.dart';
+import 'package:foodbridge_volunteers_flutter/common/color_extension.dart';
+import 'package:foodbridge_volunteers_flutter/common_widget/round_textfield.dart';
+import 'package:foodbridge_volunteers_flutter/view/maps/current_location_view.dart';
+import 'package:foodbridge_volunteers_flutter/view/menu/item_details_view.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../common_widget/recent_item_row.dart';
 import '../../common_widget/view_all_title_row.dart';
-import 'package:foodbridge-volunteers/data/recent_data.dart';
+import 'package:foodbridge_volunteers_flutter/data/recent_data.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});

@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
-import 'package:foodbridge-volunteers/view/more/thankyou_message_view.dart';
-import 'package:foodbridge-volunteers/view/payment/keys.dart';
+import 'package:foodbridge_volunteers_flutter/view/more/thankyou_message_view.dart';
+import 'package:foodbridge_volunteers_flutter/view/payment/keys.dart';
 import 'package:http/http.dart' as http;
-import 'package:foodbridge-volunteers/common/color_extension.dart';
+import 'package:foodbridge_volunteers_flutter/common/color_extension.dart';
 
 class Payment extends StatefulWidget {
   final double amount;
