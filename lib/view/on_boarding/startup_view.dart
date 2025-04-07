@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:foodbridge_volunteers_flutter/common/color_extension.dart';
+import 'package:foodbridge_volunteers_flutter/logic/delivery_auth/bloc/auth_bloc.dart';
+import 'package:foodbridge_volunteers_flutter/logic/delivery_auth/bloc/auth_event.dart';
+import 'package:foodbridge_volunteers_flutter/logic/delivery_auth/bloc/auth_state.dart';
 import 'package:foodbridge_volunteers_flutter/view/login/welcome_view.dart';
+import 'package:foodbridge_volunteers_flutter/view/main_tabview/main_tabview.dart';
 
 class StartupView extends StatefulWidget {
   const StartupView({super.key});
 
   @override
-  State<StartupView> createState() => _StarupViewState();
+  State<StartupView> createState() => _StartupViewState();
 }
 
-class _StarupViewState extends State<StartupView>
+class _StartupViewState extends State<StartupView>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
@@ -17,31 +22,17 @@ class _StarupViewState extends State<StartupView>
   @override
   void initState() {
     super.initState();
-
-    // Initialize the animation controller
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 800),
       vsync: this,
     );
-
-    // Define the fade animation
     _fadeAnimation = CurvedAnimation(
       parent: _animationController,
       curve: Curves.easeInOut,
     );
-
-    // Start the delay and transition
-    goWelcomePage();
-  }
-
-  void goWelcomePage() async {
-    await Future.delayed(const Duration(seconds: 3));
-    _animationController.forward(); // Start the fade-out animation
-    Future.delayed(const Duration(milliseconds: 800), () {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const WelcomeView()),
-      );
-    });
+    
+    // Trigger auth check
+    context.read<AuthBloc>().add(AppStartCheck());
   }
 
   @override
@@ -52,13 +43,25 @@ class _StarupViewState extends State<StartupView>
 
   @override
   Widget build(BuildContext context) {
+    return BlocConsumer<AuthBloc, AuthState>(
+      listener: (context, state) {
+        if (state is AuthAuthenticated || state is AuthUnauthenticated) {
+          _handleNavigation(state);
+        }
+      },
+      builder: (context, state) {
+        return _buildSplashUI(context);
+      },
+    );
+  }
+
+  Widget _buildSplashUI(BuildContext context) {
     var media = MediaQuery.of(context).size;
 
     return Scaffold(
       body: Stack(
         alignment: Alignment.center,
         children: [
-          // Background and logo of the splash screen
           FadeTransition(
             opacity: ReverseAnimation(_fadeAnimation),
             child: Stack(
@@ -101,16 +104,29 @@ class _StarupViewState extends State<StartupView>
               ],
             ),
           ),
-
-          // Fade-in WelcomeView
           FadeTransition(
             opacity: _fadeAnimation,
-            child: Container(
-              color: Colors.white, // Prevents a flash of transparency
-            ),
+            child: Container(color: Colors.white),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _handleNavigation(AuthState state) async {
+    await Future.delayed(const Duration(seconds: 3));
+    _animationController.forward();
+    
+    await Future.delayed(const Duration(milliseconds: 800));
+    
+    if (state is AuthAuthenticated) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const MainTabView()),
+      );
+    } else {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const WelcomeView()),
+      );
+    }
   }
 }

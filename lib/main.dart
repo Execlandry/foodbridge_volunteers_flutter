@@ -1,13 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:foodbridge_volunteers_flutter/core/api/dio_client.dart';
+import 'package:foodbridge_volunteers_flutter/core/repository/delivery_repository.dart';
+import 'package:foodbridge_volunteers_flutter/core/repository/user_service.dart';
+import 'package:foodbridge_volunteers_flutter/logic/delivery_auth/bloc/auth_bloc.dart';
+import 'package:foodbridge_volunteers_flutter/logic/delivery_auth/bloc/auth_event.dart';
+import 'package:foodbridge_volunteers_flutter/view/login/login_view.dart';
+import 'package:foodbridge_volunteers_flutter/view/main_tabview/main_tabview.dart';
 import 'package:foodbridge_volunteers_flutter/view/on_boarding/startup_view.dart';
 import 'package:foodbridge_volunteers_flutter/view/payment/keys.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint("Failed to load .env file: $e");
+  }
+  try {
+    DioClient();
+  } catch (e) {
+    debugPrint("Failed to load AppUrl file: $e");
+  }
 
-  Stripe.publishableKey = PublishableKey;
+  Stripe.publishableKey = publishableKey;
   await Stripe.instance.applySettings();
+
+  await checkHealth();
 
   runApp(const MyApp());
 }
@@ -15,33 +36,24 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        fontFamily: "Metropolis",
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<AuthBloc>(
+          create: (context) => AuthBloc(DeliveryRepository()),
+        )
+      ],
+      child: MaterialApp(
+        title: 'FoodBridge Volunteers',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          fontFamily: "Metropolis",
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+        ),
+        home: const StartupView(),
       ),
-      home: const StartupView(),
     );
   }
 }

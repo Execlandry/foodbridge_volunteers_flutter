@@ -21,7 +21,7 @@ class RoundTextfield extends StatelessWidget {
     this.left,
     this.obscureText = false,
     this.suffixIcon,
-    this.onChanged,
+    this.onChanged, required String? Function(dynamic value) validator,
   });
 
   @override

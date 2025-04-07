@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:foodbridge_volunteers_flutter/common/color_extension.dart';
 import 'package:foodbridge_volunteers_flutter/common_widget/round_button.dart';
+import 'package:foodbridge_volunteers_flutter/logic/delivery_auth/bloc/auth_bloc.dart';
+import 'package:foodbridge_volunteers_flutter/logic/delivery_auth/bloc/auth_event.dart';
+import 'package:foodbridge_volunteers_flutter/logic/delivery_auth/bloc/auth_state.dart';
 import 'package:foodbridge_volunteers_flutter/view/login/login_view.dart';
-import 'package:foodbridge_volunteers_flutter/view/login/otp_view.dart';
 import '../../common_widget/round_textfield.dart';
 
 class SignUpView extends StatefulWidget {
@@ -13,130 +16,199 @@ class SignUpView extends StatefulWidget {
 }
 
 class _SignUpViewState extends State<SignUpView> {
-  TextEditingController txtName = TextEditingController();
-  TextEditingController txtMobile = TextEditingController();
-  TextEditingController txtAddress = TextEditingController();
-  TextEditingController txtEmail = TextEditingController();
-  TextEditingController txtPassword = TextEditingController();
-  TextEditingController txtConfirmPassword = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController txtName = TextEditingController();
+  final TextEditingController txtMobile = TextEditingController();
+  final TextEditingController txtEmail = TextEditingController();
+  final TextEditingController txtPassword = TextEditingController();
+  final TextEditingController txtConfirmPassword = TextEditingController();
 
   bool _isPasswordHidden = true;
   bool _isConfirmPasswordHidden = true;
 
   @override
+  void dispose() {
+    txtName.dispose();
+    txtMobile.dispose();
+    txtEmail.dispose();
+    txtPassword.dispose();
+    txtConfirmPassword.dispose();
+    super.dispose();
+  }
+
+  void _showErrorSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 25),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const SizedBox(height: 64),
-              Text(
-                "Sign Up",
-                style: TextStyle(
+      body: BlocListener<AuthBloc, AuthState>(
+        listener: (context, state) {
+          if (state is AuthRegistrationSuccess) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const LoginView()),
+            );
+          }
+          if (state is AuthFailure) {
+            _showErrorSnackbar(state.error);
+          }
+        },
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(vertical: 25, horizontal: 25),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 64),
+                Text(
+                  "Sign Up",
+                  style: TextStyle(
                     color: TColor.primaryText,
                     fontSize: 30,
-                    fontWeight: FontWeight.w800),
-              ),
-              Text(
-                "Add your details to sign up",
-                style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  "Add your details to sign up",
+                  style: TextStyle(
                     color: TColor.secondaryText,
                     fontSize: 14,
-                    fontWeight: FontWeight.w500),
-              ),
-              const SizedBox(height: 25),
-              RoundTextfield(
-                hintText: "Name",
-                controller: txtName,
-              ),
-              const SizedBox(height: 25),
-              RoundTextfield(
-                hintText: "Email",
-                controller: txtEmail,
-                keyboardType: TextInputType.emailAddress,
-              ),
-              const SizedBox(height: 25),
-              RoundTextfield(
-                hintText: "Mobile No",
-                controller: txtMobile,
-                keyboardType: TextInputType.phone,
-              ),
-              const SizedBox(height: 25),
-              RoundTextfield(
-                hintText: "Password",
-                controller: txtPassword,
-                obscureText: _isPasswordHidden,
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _isPasswordHidden ? Icons.visibility_off : Icons.visibility,
+                    fontWeight: FontWeight.w500,
                   ),
-                  onPressed: () {
-                    setState(() {
-                      _isPasswordHidden = !_isPasswordHidden;
-                    });
-                  },
                 ),
-              ),
-              const SizedBox(height: 25),
-              RoundTextfield(
-                hintText: "Confirm Password",
-                controller: txtConfirmPassword,
-                obscureText: _isConfirmPasswordHidden,
-                suffixIcon: IconButton(
-                  icon: Icon(
-                    _isConfirmPasswordHidden
-                        ? Icons.visibility_off
-                        : Icons.visibility,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      _isConfirmPasswordHidden = !_isConfirmPasswordHidden;
-                    });
-                  },
-                ),
-              ),
-              const SizedBox(height: 25),
-              RoundButton(
-                  title: "Sign Up",
-                  onPressed: () {
-                    Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => OTPView()));
-                  }),
-              const SizedBox(height: 30),
-              TextButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const LoginView(),
-                    ),
-                  );
-                },
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      "Already have an Account? ",
-                      style: TextStyle(
-                          color: TColor.secondaryText,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500),
-                    ),
-                    Text(
-                      "Login",
-                      style: TextStyle(
-                          color: TColor.primary,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+                const SizedBox(height: 25),
+                _buildInputFields(),
+                const SizedBox(height: 30),
+                _buildSignUpButton(),
+                _buildLoginRedirect(),
+              ],
+            ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInputFields() {
+    return Column(
+      children: [
+        RoundTextfield(
+          hintText: "Name",
+          controller: txtName,
+          validator: (value) => value!.isEmpty ? 'Enter your name' : null,
+        ),
+        const SizedBox(height: 25),
+        RoundTextfield(
+          hintText: "Email",
+          controller: txtEmail,
+          keyboardType: TextInputType.emailAddress,
+          validator: (value) => value!.contains('@') ? null : 'Enter valid email',
+        ),
+        const SizedBox(height: 25),
+        RoundTextfield(
+          hintText: "Mobile No",
+          controller: txtMobile,
+          keyboardType: TextInputType.phone,
+          validator: (value) => value!.length == 10 ? null : 'Enter valid mobile number',
+        ),
+        const SizedBox(height: 25),
+        _buildPasswordField(),
+        const SizedBox(height: 25),
+        _buildConfirmPasswordField(),
+      ],
+    );
+  }
+
+  Widget _buildPasswordField() {
+    return RoundTextfield(
+      hintText: "Password",
+      controller: txtPassword,
+      obscureText: _isPasswordHidden,
+      validator: (value) => value!.length >= 6 ? null : 'Minimum 6 characters',
+      suffixIcon: IconButton(
+        icon: Icon(_isPasswordHidden ? Icons.visibility_off : Icons.visibility),
+        onPressed: () => setState(() => _isPasswordHidden = !_isPasswordHidden),
+      ),
+    );
+  }
+
+  Widget _buildConfirmPasswordField() {
+    return RoundTextfield(
+      hintText: "Confirm Password",
+      controller: txtConfirmPassword,
+      obscureText: _isConfirmPasswordHidden,
+      validator: (value) => value == txtPassword.text ? null : 'Passwords do not match',
+      suffixIcon: IconButton(
+        icon: Icon(_isConfirmPasswordHidden 
+            ? Icons.visibility_off 
+            : Icons.visibility),
+        onPressed: () => setState(
+          () => _isConfirmPasswordHidden = !_isConfirmPasswordHidden),
+      ),
+    );
+  }
+
+  Widget _buildSignUpButton() {
+    return BlocBuilder<AuthBloc, AuthState>(
+      builder: (context, state) {
+        return RoundButton(
+          title: "Sign Up",
+          isLoading: state is AuthLoading,
+          onPressed: () {
+            if (_formKey.currentState!.validate()) {
+              if (txtPassword.text != txtConfirmPassword.text) {
+                _showErrorSnackbar('Passwords do not match');
+                return;
+              }
+              
+              context.read<AuthBloc>().add(
+                RegisterRequestedUserEvent(
+                  name: txtName.text.trim(),
+                  email: txtEmail.text.trim(),
+                  mobno: txtMobile.text.trim(),
+                  password: txtPassword.text.trim(),
+                ),
+              );
+            }
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildLoginRedirect() {
+    return TextButton(
+      onPressed: () => Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const LoginView()),
+      ),
+      child: RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: "Already have an Account? ",
+              style: TextStyle(
+                color: TColor.secondaryText,
+                fontSize: 14,
+                fontWeight: FontWeight.w500),
+            ),
+            TextSpan(
+              text: "Login",
+              style: TextStyle(
+                color: TColor.primary,
+                fontSize: 14,
+                fontWeight: FontWeight.w700),
+            ),
+          ],
         ),
       ),
     );

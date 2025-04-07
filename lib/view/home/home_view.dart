@@ -7,7 +7,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import '../../common_widget/recent_item_row.dart';
 import '../../common_widget/view_all_title_row.dart';
-import 'package:foodbridge_volunteers_flutter/data/recent_data.dart';
+import 'package:foodbridge_volunteers_flutter/logic/recent_data.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -229,7 +229,7 @@ class _HomeViewState extends State<HomeView> {
                   ),
                   onChanged: (value) {
                     _filterSearchResults(value);
-                  },
+                  }, validator: (value) {  },
                 ),
               ),
               const SizedBox(height: 30),

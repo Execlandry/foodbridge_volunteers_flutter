@@ -304,7 +304,7 @@ class _NavigateDeliveryViewState extends State<NavigateDeliveryView> {
                   child: RoundTextfield(
                     hintText: "Enter 6-digit OTP",
                     controller: otpController,
-                    keyboardType: TextInputType.number,
+                    keyboardType: TextInputType.number, validator: (value) {  },
                   ),
                 ),
                 const SizedBox(height: 20),
