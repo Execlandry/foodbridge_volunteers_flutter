@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:foodbridge_volunteers_flutter/common/color_extension.dart';
-import 'package:foodbridge_volunteers_flutter/logic/delivery_auth/bloc/auth_bloc.dart';
-import 'package:foodbridge_volunteers_flutter/logic/delivery_auth/bloc/auth_event.dart';
-import 'package:foodbridge_volunteers_flutter/logic/delivery_auth/bloc/auth_state.dart';
+import 'package:foodbridge_volunteers_flutter/logic/auth/bloc/auth_bloc.dart';
+import 'package:foodbridge_volunteers_flutter/logic/auth/bloc/auth_event.dart';
+import 'package:foodbridge_volunteers_flutter/logic/auth/bloc/auth_state.dart';
 import 'package:foodbridge_volunteers_flutter/view/main_tabview/main_tabview.dart';
 import '../../common_widget/round_button.dart';
 import '../../common_widget/round_textfield.dart';

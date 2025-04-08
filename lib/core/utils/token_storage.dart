@@ -31,7 +31,7 @@ class TokenStorage {
       final response = await dio.post(ApiEndpoints.authRefresh);
 
       if (response.statusCode == 200 && response.data['access_token'] != null) {
-        final newToken = response.data['accessToken'];
+        final newToken = response.data['access_token'];
         await saveToken(newToken);
         return newToken;
       } else {

@@ -1,15 +1,15 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:foodbridge_volunteers_flutter/core/repository/delivery_repository.dart';
+import 'package:foodbridge_volunteers_flutter/core/repository/auth_repository.dart';
 import 'package:foodbridge_volunteers_flutter/core/utils/token_storage.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
-import 'package:foodbridge_volunteers_flutter/core/repository/user_service.dart';
+import 'package:foodbridge_volunteers_flutter/core/repository/user_repository.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final DeliveryRepository deliveryRepository;
+  final AuthRepository authRepository;
 
-  AuthBloc(this.deliveryRepository) : super(AuthInitial()) {
+  AuthBloc(this.authRepository) : super(AuthInitial()) {
     on<AppStartCheck>(_onAppStartCheck);
     on<RegisterRequestedUserEvent>(_onRegisterRequestedUserEvent);
     on<LoginRequestedUserEvent>(_onLoginRequestedUserEvent);
@@ -34,7 +34,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       LoginRequestedUserEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
-      await deliveryRepository.loginUser(
+      await authRepository.loginUser(
           email: event.email, password: event.password);
 
       final token = await TokenStorage.getToken();
@@ -46,7 +46,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<void> _onLoggedOutRequestedUserEvent(
       LoggedOutRequestedUserEvent event, Emitter<AuthState> emit) async {
-        emit(AuthLoading());
+    emit(AuthLoading());
     try {
       await TokenStorage.clearToken();
       emit(AuthUnauthenticated());
@@ -61,7 +61,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(AuthLoading());
     try {
-      await deliveryRepository.registerUser(
+      await authRepository.registerUser(
         name: event.name,
         email: event.email,
         password: event.password,

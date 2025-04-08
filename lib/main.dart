@@ -3,12 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:foodbridge_volunteers_flutter/core/api/dio_client.dart';
-import 'package:foodbridge_volunteers_flutter/core/repository/delivery_repository.dart';
-import 'package:foodbridge_volunteers_flutter/core/repository/user_service.dart';
-import 'package:foodbridge_volunteers_flutter/logic/delivery_auth/bloc/auth_bloc.dart';
-import 'package:foodbridge_volunteers_flutter/logic/delivery_auth/bloc/auth_event.dart';
-import 'package:foodbridge_volunteers_flutter/view/login/login_view.dart';
-import 'package:foodbridge_volunteers_flutter/view/main_tabview/main_tabview.dart';
+import 'package:foodbridge_volunteers_flutter/core/repository/auth_repository.dart';
+import 'package:foodbridge_volunteers_flutter/core/repository/user_repository.dart';
+import 'package:foodbridge_volunteers_flutter/logic/auth/bloc/auth_bloc.dart';
 import 'package:foodbridge_volunteers_flutter/view/on_boarding/startup_view.dart';
 import 'package:foodbridge_volunteers_flutter/view/payment/keys.dart';
 
@@ -20,15 +17,14 @@ Future<void> main() async {
     debugPrint("Failed to load .env file: $e");
   }
   try {
-    DioClient();
+    final dioClient = DioClient();
+    await dioClient.getDio(); // Force initialization
   } catch (e) {
-    debugPrint("Failed to load AppUrl file: $e");
+    debugPrint("DioClient initialization failed: $e");
   }
 
   Stripe.publishableKey = publishableKey;
   await Stripe.instance.applySettings();
-
-  await checkHealth();
 
   runApp(const MyApp());
 }
@@ -41,7 +37,7 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthBloc>(
-          create: (context) => AuthBloc(DeliveryRepository()),
+          create: (context) => AuthBloc(AuthRepository()),
         )
       ],
       child: MaterialApp(

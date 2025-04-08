@@ -4,7 +4,7 @@ import 'package:foodbridge_volunteers_flutter/core/api/api_endpoints.dart';
 import 'package:foodbridge_volunteers_flutter/core/api/dio_client.dart';
 import 'package:foodbridge_volunteers_flutter/core/utils/token_storage.dart';
 
-class DeliveryRepository {
+class AuthRepository {
   final dio = DioClient().dio;
 
   Future<void> registerUser({
@@ -75,5 +75,4 @@ class DeliveryRepository {
       throw Exception("Login failed: $e");
     }
   }
-
 }
