@@ -24,7 +24,7 @@ class UserProfileLoaded extends UserProfileState{
 
 class UserProfileError extends UserProfileState{
   final String message;
-  UserProfileError(this.message);
+  const UserProfileError(this.message);
 
   @override
   List<Object?> get props => [message];

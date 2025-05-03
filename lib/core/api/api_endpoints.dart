@@ -13,9 +13,11 @@ class ApiEndpoints {
   //delivery-service endpoints
   static const authRegisterDeliveryUser = '$auth/partners/register';
 
+  static const delivery='$_v1/delivery-service';
+  static const getAvailableOrders='$delivery/delivery/available-orders';
+
   static const cart = '$_v1/cart-service';
   static const business = '$_v1/business-service';
-  static const order = '$_v1/order-service';
   static const files = '$_v1/files-service';
   static const payment = '$_v1/payment-service';
 

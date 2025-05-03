@@ -8,15 +8,24 @@ import 'package:foodbridge_volunteers_flutter/view/navigation/navigate_pickup_vi
 
 class CheckoutView extends StatefulWidget {
   final String pickupLocation;
+  final double pickupLat;
+  final double pickupLng;
   final String dropLocation;
+  final double dropLat;
+  final double dropLng;
   final double amount;
 
   const CheckoutView({
     Key? key,
     required this.pickupLocation,
+    required this.pickupLat,
+    required this.pickupLng,
     required this.dropLocation,
+    required this.dropLat,
+    required this.dropLng,
     required this.amount,
-  }) : super(key: key);
+  })  : assert(pickupLat >= -90 && pickupLat <= 90),
+        super(key: key);
 
   @override
   State<CheckoutView> createState() => _CheckoutViewState();
@@ -130,7 +139,9 @@ class _CheckoutViewState extends State<CheckoutView> {
                               fontWeight: FontWeight.w500),
                         ),
                         Text(
-                          "${widget.amount == 0 ? 'Free' : 'Rs ${widget.amount.toStringAsFixed(2)}'}",
+                          widget.amount == 0
+                              ? 'Free'
+                              : 'Rs ${widget.amount.toStringAsFixed(2)}',
                           style: TextStyle(
                               color: TColor.primaryText,
                               fontSize: 13,
@@ -163,7 +174,9 @@ class _CheckoutViewState extends State<CheckoutView> {
                               fontWeight: FontWeight.w500),
                         ),
                         Text(
-                          "${widget.amount == 0 ? 'Free' : 'Rs ${widget.amount.toStringAsFixed(2)}'}",
+                          widget.amount == 0
+                              ? 'Free'
+                              : 'Rs ${widget.amount.toStringAsFixed(2)}',
                           style: TextStyle(
                               color: TColor.primaryText,
                               fontSize: 15,
@@ -185,7 +198,7 @@ class _CheckoutViewState extends State<CheckoutView> {
                 padding:
                     const EdgeInsets.symmetric(vertical: 20, horizontal: 25),
                 child: RoundButton(
-                    title: "Confirm Delivery",
+                    title: "Accept Delivery",
                     // onPressed: () {
                     //   showModalBottomSheet(
                     //       context: context,
@@ -200,8 +213,10 @@ class _CheckoutViewState extends State<CheckoutView> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => NavigatePickupView(
-                            pickupLocation: widget.pickupLocation,
-                            dropLocation: widget.dropLocation,
+                            pickupLat: widget.pickupLat,
+                            pickupLng: widget.pickupLng,
+                            dropLat: widget.dropLat,
+                            dropLng: widget.dropLng,
                             amount: widget.amount,
                           ),
                         ),

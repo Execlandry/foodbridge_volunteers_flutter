@@ -4,10 +4,14 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:foodbridge_volunteers_flutter/core/api/dio_client.dart';
 import 'package:foodbridge_volunteers_flutter/core/repository/auth_repository.dart';
+import 'package:foodbridge_volunteers_flutter/core/repository/delivery_repository.dart';
 import 'package:foodbridge_volunteers_flutter/core/repository/user_repository.dart';
 import 'package:foodbridge_volunteers_flutter/logic/auth/bloc/auth_bloc.dart';
+import 'package:foodbridge_volunteers_flutter/logic/delivery/bloc/delivery_bloc.dart';
 import 'package:foodbridge_volunteers_flutter/view/on_boarding/startup_view.dart';
 import 'package:foodbridge_volunteers_flutter/view/payment/keys.dart';
+
+import 'logic/user_profile/bloc/user_profile_bloc.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,7 +42,13 @@ class MyApp extends StatelessWidget {
       providers: [
         BlocProvider<AuthBloc>(
           create: (context) => AuthBloc(AuthRepository()),
-        )
+        ),
+        BlocProvider<DeliveryBloc>(
+          create: (context) => DeliveryBloc(DeliveryRepository()),
+        ),
+        BlocProvider<UserProfileBloc>(
+            create: (context) =>
+                UserProfileBloc(userRepository: UserRepository())),
       ],
       child: MaterialApp(
         title: 'FoodBridge Volunteers',

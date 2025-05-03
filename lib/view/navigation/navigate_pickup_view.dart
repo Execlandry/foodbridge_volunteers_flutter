@@ -12,14 +12,18 @@ import 'package:flutter_compass/flutter_compass.dart';
 import '../../common/color_extension.dart';
 
 class NavigatePickupView extends StatefulWidget {
-  final String pickupLocation;
-  final String dropLocation;
+  final double pickupLat;
+  final double pickupLng;
+  final double dropLat;
+  final double dropLng;
   final double amount;
 
   const NavigatePickupView({
     super.key,
-    required this.pickupLocation,
-    required this.dropLocation,
+    required this.pickupLat,
+    required this.pickupLng,
+    required this.dropLat,
+    required this.dropLng,
     required this.amount,
   });
 
@@ -31,7 +35,7 @@ class _NavigatePickupViewState extends State<NavigatePickupView> {
   final MapController _mapController = MapController();
   final TextEditingController otpController = TextEditingController();
   final Location _locationService = Location();
-  double _currentHeading = 0.0; // Store the device's heading
+  double _currentHeading = 0.0;
 
   bool _isLoading = true;
   bool _isNavigating = false;
@@ -42,6 +46,7 @@ class _NavigatePickupViewState extends State<NavigatePickupView> {
   @override
   void initState() {
     super.initState();
+    _destination = LatLng(widget.pickupLat, widget.pickupLng);
     _initializeLocation();
     _listenToCompass();
   }
@@ -66,7 +71,6 @@ class _NavigatePickupViewState extends State<NavigatePickupView> {
               LatLng(locationData.latitude!, locationData.longitude!);
           _isLoading = false;
         });
-        // Move map to the updated location if navigation is active
         if (_isNavigating) {
           _mapController.move(_currentLocation!, 20);
         }
@@ -75,7 +79,6 @@ class _NavigatePickupViewState extends State<NavigatePickupView> {
         }
       }
     });
-    await _fetchCoordinates(widget.pickupLocation);
   }
 
   Future<bool> _checkAndRequestPermission() async {
@@ -90,27 +93,6 @@ class _NavigatePickupViewState extends State<NavigatePickupView> {
       if (permissionGranted != PermissionStatus.granted) return false;
     }
     return true;
-  }
-
-  Future<void> _fetchCoordinates(String location) async {
-    final url = Uri.parse(
-        'https://nominatim.openstreetmap.org/search?q=$location&format=json&limit=1');
-    try {
-      final response = await http.get(url);
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        if (data.isNotEmpty) {
-          final lat = double.parse(data[0]['lat']);
-          final lon = double.parse(data[0]['lon']);
-          setState(() {
-            _destination = LatLng(lat, lon);
-          });
-          _fetchRoute();
-        }
-      }
-    } catch (e) {
-      print("Exception in fetching coordinates: $e");
-    }
   }
 
   Future<void> _fetchRoute() async {
@@ -133,7 +115,8 @@ class _NavigatePickupViewState extends State<NavigatePickupView> {
         }
       }
     } catch (e) {
-      print("Exception in fetching route: $e");
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Failed to load route")));
     }
   }
 
@@ -303,7 +286,12 @@ class _NavigatePickupViewState extends State<NavigatePickupView> {
                   child: RoundTextfield(
                     hintText: "Enter 6-digit OTP",
                     controller: otpController,
-                    keyboardType: TextInputType.number, validator: (value) {  },
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) return 'Enter OTP';
+                      if (value.length != 6) return 'Must be 6 digits';
+                      return null;
+                    },
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -317,8 +305,10 @@ class _NavigatePickupViewState extends State<NavigatePickupView> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => NavigateDeliveryView(
-                            pickupLocation: widget.pickupLocation,
-                            dropLocation: widget.dropLocation,
+                            pickupLat: widget.pickupLat,
+                            pickupLng: widget.pickupLng,
+                            dropLat: widget.dropLat,
+                            dropLng: widget.dropLng,
                             amount: widget.amount,
                           ),
                         ),

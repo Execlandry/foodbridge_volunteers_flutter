@@ -4,7 +4,6 @@ import 'package:foodbridge_volunteers_flutter/core/repository/auth_repository.da
 import 'package:foodbridge_volunteers_flutter/core/utils/token_storage.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
-import 'package:foodbridge_volunteers_flutter/core/repository/user_repository.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepository authRepository;

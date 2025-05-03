@@ -16,11 +16,7 @@ class ProfileView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) =>
-          UserProfileBloc(userRepository: UserRepository())..add(FetchUserProfile()),
-      child: const _ProfileViewBody(),
-    );
+    return const _ProfileViewBody();
   }
 }
 
@@ -41,6 +37,12 @@ class _ProfileViewBodyState extends State<_ProfileViewBody> {
   final txtAddress = TextEditingController();
   final txtPassword = TextEditingController();
   final txtConfirmPassword = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<UserProfileBloc>().add(FetchUserProfile());
+  }
 
   @override
   void dispose() {
@@ -123,7 +125,8 @@ class _ProfileViewBodyState extends State<_ProfileViewBody> {
                   ),
                   TextButton.icon(
                     onPressed: () async {
-                      image = await picker.pickImage(source: ImageSource.gallery);
+                      image =
+                          await picker.pickImage(source: ImageSource.gallery);
                       setState(() {});
                     },
                     icon: Icon(Icons.edit, color: TColor.primary, size: 12),
@@ -140,7 +143,8 @@ class _ProfileViewBodyState extends State<_ProfileViewBody> {
                   ),
                   const SizedBox(height: 20),
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
                     child: RoundTitleTextfield(
                       title: "Name",
                       hintText: "Enter a Username",
@@ -148,7 +152,8 @@ class _ProfileViewBodyState extends State<_ProfileViewBody> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
                     child: RoundTitleTextfield(
                       title: "Email",
                       hintText: "Enter Email",
@@ -157,7 +162,8 @@ class _ProfileViewBodyState extends State<_ProfileViewBody> {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
                     child: RoundTitleTextfield(
                       title: "Mobile No",
                       hintText: "Enter Mobile No",
@@ -171,10 +177,11 @@ class _ProfileViewBodyState extends State<_ProfileViewBody> {
                     child: RoundButton(
                       title: "Save",
                       onPressed: () {
-                        // TODO: Add update logic here (API call or bloc event)
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Save functionality not yet implemented.')),
-                        );
+                        // context.read<UserProfileBloc>().add(UpdateUserProfile(
+                        //       name: txtName.text,
+                        //       email: txtEmail.text,
+                        //       mobile: txtMobile.text,
+                        //     ));
                       },
                     ),
                   ),

@@ -4,18 +4,8 @@ import 'package:foodbridge_volunteers_flutter/logic/auth/bloc/auth_bloc.dart';
 import 'package:foodbridge_volunteers_flutter/logic/auth/bloc/auth_event.dart';
 import 'package:foodbridge_volunteers_flutter/logic/auth/bloc/auth_state.dart';
 import 'package:foodbridge_volunteers_flutter/view/login/welcome_view.dart';
-import 'package:foodbridge_volunteers_flutter/view/main_tabview/main_tabview.dart';
 import 'package:foodbridge_volunteers_flutter/view/more/about_us_view.dart';
-import 'package:foodbridge_volunteers_flutter/view/more/inbox_view.dart';
-import 'package:foodbridge_volunteers_flutter/view/offer/delivery_history.dart';
-import 'package:foodbridge_volunteers_flutter/view/on_boarding/startup_view.dart';
-import 'package:foodbridge_volunteers_flutter/view/payment/payment_history_view.dart';
-// import 'package:foodbridge_volunteers_flutter/view/more/payment_details_view.dart';
-
 import '../../common/color_extension.dart';
-// import '../../common/service_call.dart';
-import 'my_order_view.dart';
-import 'notification_view.dart';
 
 class MoreView extends StatefulWidget {
   const MoreView({super.key});
@@ -25,49 +15,60 @@ class MoreView extends StatefulWidget {
 }
 
 class _MoreViewState extends State<MoreView> {
-  List moreArr = [
-    {
-      "index": "1",
-      "name": "Payment History",
-      "image": "assets/img/more_payment.png",
-      "base": 0
-    },
-    {
-      "index": "2",
-      "name": "My Deliveries",
-      "image": "assets/img/more_my_order.png",
-      "base": 0
-    },
-    {
-      "index": "3",
-      "name": "Notifications",
-      "image": "assets/img/more_notification.png",
-      "base": 15
-    },
-    {
-      "index": "4",
-      "name": "Inbox",
-      "image": "assets/img/more_inbox.png",
-      "base": 0
-    },
-    {
-      "index": "5",
-      "name": "About Us",
-      "image": "assets/img/more_info.png",
-      "base": 0
-    },
-    {
-      "index": "6",
-      "name": "Logout",
-      "image": "assets/img/logout.png",
-      "base": 0
-    },
-  ];
+  late final List<Map<String, dynamic>> _menuItems;
+
+  @override
+  void initState() {
+    super.initState();
+    _menuItems = [
+      {
+        "title": "About Us",
+        "icon": Icons.info_outline,
+        "action": (context) => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const AboutUsView()),
+            ),
+      },
+      {
+        "title": "Logout",
+        "icon": Icons.exit_to_app,
+        "action": (context) => _showLogoutDialog(context),
+      },
+    ];
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('Confirm Logout',
+            style: TextStyle(fontWeight: FontWeight.bold)),
+        content: const Text('Are you sure you want to logout?'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.read<AuthBloc>().add(LoggedOutRequestedUserEvent());
+            },
+            child: const Text('Logout', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showErrorSnackbar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: Colors.red,
+        backgroundColor: Colors.redAccent,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }
@@ -80,7 +81,7 @@ class _MoreViewState extends State<MoreView> {
           if (state is AuthUnauthenticated) {
             Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(builder: (context) => WelcomeView()),
+              MaterialPageRoute(builder: (context) => const WelcomeView()),
               (route) => false,
             );
           }
@@ -88,202 +89,89 @@ class _MoreViewState extends State<MoreView> {
             _showErrorSnackbar(state.error);
           }
         },
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const SizedBox(
-                  height: 46,
+        child: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+              decoration: BoxDecoration(
+                color: TColor.primary.withOpacity(0.1),
+                borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(30),
+                  bottomRight: Radius.circular(30),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        "More",
-                        style: TextStyle(
-                            color: TColor.primaryText,
-                            fontSize: 20,
-                            fontWeight: FontWeight.w800),
-                      ),
-                      // IconButton(
-                      //   onPressed: () {
-                      //     Navigator.push(
-                      //         context,
-                      //         MaterialPageRoute(
-                      //             builder: (context) => const MyOrderView()));
-                      //   },
-                      //   icon: Image.asset(
-                      //     "assets/img/shopping_cart.png",
-                      //     width: 25,
-                      //     height: 25,
-                      //   ),
-                      // ),
-                    ],
+              ),
+              child: const Center(
+                child: Text(
+                  "Settings",
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
                   ),
                 ),
-                ListView.builder(
-                    padding: EdgeInsets.zero,
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    itemCount: moreArr.length,
-                    itemBuilder: (context, index) {
-                      var mObj = moreArr[index] as Map? ?? {};
-                      var countBase = mObj["base"] as int? ?? 0;
-                      return InkWell(
-                        onTap: () {
-                          switch (mObj["index"].toString()) {
-                            case "1":
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const PaymentHistoryView()));
-
-                              break;
-
-                            case "2":
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const DeliveryHistory()));
-                            case "3":
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const NotificationsView()));
-                            case "4":
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => const InboxView()));
-                            case "5":
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const AboutUsView()));
-                            case "6":
-                              showDialog(
-                                context: context,
-                                builder: (_) => AlertDialog(
-                                  title: const Text('Confirm Logout'),
-                                  content: const Text(
-                                      'Are you sure you want to logout?'),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.pop(context),
-                                      child: const Text('Cancel'),
-                                    ),
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context); // Close dialog
-                                        BlocProvider.of<AuthBloc>(context)
-                                            .add(LoggedOutRequestedUserEvent());
-                                      },
-                                      child: const Text('Logout'),
-                                    ),
-                                  ],
-                                ),
-                              );
-                              break;
-
-                            default:
-                              break;
-                          }
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(
-                              vertical: 8, horizontal: 20),
-                          child: Stack(
-                            alignment: Alignment.centerRight,
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 12, horizontal: 12),
-                                decoration: BoxDecoration(
-                                    color: TColor.textfield,
-                                    borderRadius: BorderRadius.circular(5)),
-                                margin: const EdgeInsets.only(right: 15),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      width: 50,
-                                      height: 50,
-                                      padding: const EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                          color: TColor.placeholder,
-                                          borderRadius:
-                                              BorderRadius.circular(25)),
-                                      alignment: Alignment.center,
-                                      child: Image.asset(
-                                          mObj["image"].toString(),
-                                          width: 25,
-                                          height: 25,
-                                          color: const Color.fromARGB(
-                                              255, 37, 36, 36),
-                                          fit: BoxFit.contain),
-                                    ),
-                                    const SizedBox(
-                                      width: 15,
-                                    ),
-                                    Expanded(
-                                      child: Text(
-                                        mObj["name"].toString(),
-                                        style: TextStyle(
-                                            color: TColor.primaryText,
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.w600),
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      width: 15,
-                                    ),
-                                    if (countBase > 0)
-                                      Container(
-                                        padding: const EdgeInsets.all(4),
-                                        decoration: BoxDecoration(
-                                            color: Colors.red,
-                                            borderRadius:
-                                                BorderRadius.circular(12.5)),
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          countBase.toString(),
-                                          style: TextStyle(
-                                              color: TColor.white,
-                                              fontSize: 12,
-                                              fontWeight: FontWeight.w600),
-                                        ),
-                                      ),
-                                    const SizedBox(
-                                      width: 10,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: BoxDecoration(
-                                    color: TColor.primary,
-                                    borderRadius: BorderRadius.circular(15)),
-                                child: Image.asset("assets/img/btn_next.png",
-                                    width: 10, height: 10, color: Colors.white),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    })
-              ],
+              ),
             ),
+            Expanded(
+              child: ListView.builder(
+                padding: const EdgeInsets.all(20),
+                itemCount: _menuItems.length,
+                itemBuilder: (context, index) {
+                  final item = _menuItems[index];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 15),
+                    child: _buildMenuItem(
+                      icon: item['icon'] as IconData,
+                      title: item['title'] as String,
+                      onTap: () => (item['action'] as Function)(context),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMenuItem({
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+        leading: Container(
+          width: 45,
+          height: 45,
+          decoration: BoxDecoration(
+            color: TColor.primary.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(icon, color: TColor.primary, size: 22),
+        ),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
           ),
         ),
+        trailing: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: TColor.primary.withOpacity(0.1),
+            shape: BoxShape.circle,
+          ),
+          child:
+              const Icon(Icons.chevron_right, size: 20, color: Colors.black54),
+        ),
+        onTap: onTap,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       ),
     );
   }
