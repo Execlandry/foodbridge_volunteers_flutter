@@ -67,7 +67,7 @@ class _MyOrderViewState extends State<MyOrderView> {
                     ClipRRect(
                         borderRadius: BorderRadius.circular(15),
                         child: Image.asset(
-                          "assets/img/shop_logo.png",
+                          "assets/img/google_logo.png",
                           width: 80,
                           height: 80,
                           fit: BoxFit.cover,

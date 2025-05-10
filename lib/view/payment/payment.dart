@@ -75,7 +75,7 @@ class _PaymentState extends State<Payment> {
           Uri.parse("https://api.stripe.com/v1/payment_intents"),
           body: paymentInfo,
           headers: {
-            "Authorization": "Bearer $SecretKey",
+            "Authorization": "Bearer $secretKey",
             "Content-Type": "application/x-www-form-urlencoded"
           });
 

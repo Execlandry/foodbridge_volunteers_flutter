@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:foodbridge_volunteers_flutter/common/color_extension.dart';
+import 'package:foodbridge_volunteers_flutter/common_widget/round_button.dart';
 import 'package:foodbridge_volunteers_flutter/common_widget/round_textfield.dart';
+import 'package:foodbridge_volunteers_flutter/logic/delivery/bloc/delivery_bloc.dart';
+import 'package:foodbridge_volunteers_flutter/logic/user_profile/bloc/user_profile_bloc.dart';
+import 'package:foodbridge_volunteers_flutter/logic/user_profile/bloc/user_profile_event.dart';
+import 'package:foodbridge_volunteers_flutter/logic/user_profile/bloc/user_profile_state.dart';
 import 'package:foodbridge_volunteers_flutter/view/maps/current_location_view.dart';
 import 'package:foodbridge_volunteers_flutter/view/menu/item_details_view.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+
 import '../../common_widget/recent_item_row.dart';
 import '../../common_widget/view_all_title_row.dart';
-import 'package:foodbridge_volunteers_flutter/data/recent_data.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -23,46 +29,23 @@ class _HomeViewState extends State<HomeView> {
   bool _showAll = false;
   String _greetingMessage = "Good morning";
 
-  List<Map> filteredArr =
-      []; // To store the filtered list based on the search query
-
   @override
   void initState() {
     super.initState();
-    filteredArr = List.from(recentArr); // Initially, show all items
+    context.read<UserProfileBloc>().add(FetchUserProfile());
+    context.read<DeliveryBloc>().add(LoadAvailableOrders());
     _determinePosition();
     _setGreetingMessage();
   }
 
   void _setGreetingMessage() {
     final hour = DateTime.now().hour;
-
-    if (hour >= 5 && hour < 12) {
-      _greetingMessage = "Good morning";
-    } else if (hour >= 12 && hour < 17) {
-      _greetingMessage = "Good afternoon";
-    } else {
-      _greetingMessage = "Good evening";
-    }
-
     setState(() {
-      _greetingMessage = _greetingMessage;
-    });
-  }
-
-  void _filterSearchResults(String query) {
-    List<Map> results = [];
-    if (query.isEmpty) {
-      results = List.from(recentArr); // Show all items if the search is empty
-    } else {
-      results = recentArr.where((item) {
-        var foodName = item["food_name"].toString().toLowerCase();
-        var searchTerm = query.toLowerCase();
-        return foodName.contains(searchTerm); // Search by food name
-      }).toList();
-    }
-    setState(() {
-      filteredArr = results; // Update the filtered list
+      _greetingMessage = hour >= 5 && hour < 12
+          ? "Good morning"
+          : hour < 17
+              ? "Good afternoon"
+              : "Good evening";
     });
   }
 
@@ -125,159 +108,326 @@ class _HomeViewState extends State<HomeView> {
     }
   }
 
-  void _toggleDropdown() {
-    setState(() {
-      _isDropdownOpen = !_isDropdownOpen;
-    });
-  }
+  void _toggleDropdown() => setState(() => _isDropdownOpen = !_isDropdownOpen);
 
   void _navigateToCurrentLocationView() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const CurrentLocationView(),
-      ),
-    );
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => const CurrentLocationView()));
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 20),
-          child: Column(
+    return SafeArea(
+      child: Scaffold(
+        body: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                TColor.primary.withOpacity(0.05),
+                TColor.primary.withOpacity(0.01),
+              ],
+            ),
+          ),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeaderSection(),
+                  const SizedBox(height: 24),
+                  _buildLocationSection(),
+                  const SizedBox(height: 24),
+                  _buildSearchSection(),
+                  const SizedBox(height: 32),
+                  _buildDeliverySection(),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeaderSection() {
+    return BlocBuilder<UserProfileBloc, UserProfileState>(
+      builder: (context, userState) {
+        String userName = "Guest"; // Default value
+
+        if (userState is UserProfileLoaded) {
+          userName = userState.user.name ?? "User";
+        } else if (userState is UserProfileError) {
+          userName = "User";
+        }
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const SizedBox(height: 46),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "$_greetingMessage Jeevesh",
-                      style: TextStyle(
-                          color: TColor.primaryText,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Location Section
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    GestureDetector(
-                      onTap: _toggleDropdown,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Current Location",
-                            style: TextStyle(
-                                color: TColor.secondaryText,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700),
-                          ),
-                          const SizedBox(width: 10),
-                          Icon(
-                            _isDropdownOpen
-                                ? Icons.arrow_drop_up
-                                : Icons.arrow_drop_down,
-                            color: TColor.secondaryText,
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (_isDropdownOpen)
-                      GestureDetector(
-                        onTap: _navigateToCurrentLocationView,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 5),
-                          child: Text(
-                            _actualLocation ?? "Fetching location...",
-                            style: TextStyle(
-                                color: TColor.primaryText,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: RoundTextfield(
-                  hintText: "Search Delivery",
-                  controller: txtSearch,
-                  left: Container(
-                    alignment: Alignment.center,
-                    width: 30,
-                    child: Image.asset(
-                      "assets/img/search.png",
-                      width: 20,
-                      height: 20,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _greetingMessage,
+                    style: TextStyle(
+                      color: TColor.secondaryText,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                  onChanged: (value) {
-                    _filterSearchResults(value);
-                  },
-                ),
+                  Text(
+                    userName,
+                    style: TextStyle(
+                      color: TColor.primaryText,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 30),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: ViewAllTitleRow(
-                  title: "Available Deliveries",
-                  onView: () {
-                    setState(() {
-                      _showAll = !_showAll;
-                    });
-                  },
-                ),
-              ),
-              ListView.builder(
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                itemCount: _showAll
-                    ? filteredArr.length
-                    : (filteredArr.isEmpty
-                        ? 0
-                        : (filteredArr.length < 3 ? filteredArr.length : 3)),
-                itemBuilder: ((context, index) {
-                  if (filteredArr.isEmpty) {
-                    return Center(child: Text("No items found."));
-                  }
-                  var rObj = filteredArr[index] as Map? ?? {};
-                  return RecentItemRow(
-                    foodName: rObj["food_name"],
-                    organisationName: rObj["organisation_name"],
-                    businessName: rObj["business_name"],
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ItemDetailsView(
-                            itemDetails: rObj.cast<String, dynamic>(),
-                            itemId: rObj["id"], // Passing the id
-                          ),
-                        ),
-                      );
-                    },
-                  );
-                }),
-              )
             ],
           ),
+        );
+      },
+    );
+  }
+
+  Widget _buildLocationSection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: _toggleDropdown,
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Current Location",
+                        style: TextStyle(
+                          color: TColor.secondaryText,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      if (_actualLocation != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            _actualLocation!,
+                            style: TextStyle(
+                              color: TColor.primaryText,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  _isDropdownOpen ? Icons.expand_less : Icons.expand_more,
+                  color: TColor.primary,
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (_isDropdownOpen)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: RoundButton(
+              title: "Update Location",
+              onPressed: _navigateToCurrentLocationView,
+              // height: 40,
+              fontSize: 14,
+              // icon: Icon(
+              //   Icons.location_on_outlined,
+              //   color: TColor.white,
+              //   size: 18,
+              // ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildSearchSection() {
+    return RoundTextfield(
+      hintText: "Search deliveries...",
+      controller: txtSearch,
+      bgColor: Colors.white,
+      left: Icon(
+        Icons.search_rounded,
+        color: TColor.secondaryText,
+        size: 20,
+      ),
+      onChanged: (value) => setState(() {}),
+      validator: (value) => null,
+    );
+  }
+
+  Widget _buildDeliverySection() {
+    return Column(
+      children: [
+        ViewAllTitleRow(
+          title: "Available Deliveries",
+          onView: () => setState(() => _showAll = !_showAll),
+        ),
+        const SizedBox(height: 16),
+        BlocBuilder<DeliveryBloc, DeliveryState>(
+          builder: (context, state) {
+            if (state is DeliveryLoading) {
+              return _buildLoadingState();
+            } else if (state is DeliveryLoaded) {
+              return _buildDeliveryList(state.orders);
+            } else if (state is DeliveryError) {
+              return _buildErrorState(state.message);
+            }
+            return const SizedBox.shrink();
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 24),
+      child: Center(
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDeliveryList(List<dynamic> orders) {
+    final filteredOrders = orders.where((order) {
+      final searchLower = txtSearch.text.toLowerCase();
+      return order.order.business.name.toLowerCase().contains(searchLower) ||
+          order.order.address.city.toLowerCase().contains(searchLower) ||
+          order.order.menuItems
+              .any((item) => item.name.toLowerCase().contains(searchLower));
+    }).toList();
+
+    if (filteredOrders.isEmpty) {
+      return _buildEmptyState();
+    }
+
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount:
+          _showAll ? filteredOrders.length : filteredOrders.take(3).length,
+      separatorBuilder: (context, index) => const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        final order = filteredOrders[index];
+        return RecentItemRow(
+          price: order.order.amount,
+          originCity: order.order.business.name,
+          destinationCity: order.order.address.city,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ItemDetailsView(
+                itemDetails: order.toJson(),
+                itemId: order.id,
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 40),
+      child: Column(
+        children: [
+          Icon(
+            Icons.delivery_dining_rounded,
+            size: 64,
+            color: TColor.secondaryText.withOpacity(0.3),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            "No deliveries available",
+            style: TextStyle(
+              color: TColor.secondaryText,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "Check back later or try different search terms",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: TColor.secondaryText,
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildErrorState(String message) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 24),
+      child: Center(
+        child: Column(
+          children: [
+            Icon(
+              Icons.error_outline_rounded,
+              color: TColor.primary,
+              size: 40,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              "Oops! Something went wrong",
+              style: TextStyle(
+                color: TColor.primaryText,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: TColor.secondaryText,
+                fontSize: 14,
+              ),
+            ),
+          ],
         ),
       ),
     );

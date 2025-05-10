@@ -1,188 +1,197 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:foodbridge_volunteers_flutter/common_widget/round_button.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:foodbridge_volunteers_flutter/core/repository/user_repository.dart';
+import 'package:foodbridge_volunteers_flutter/logic/user_profile/bloc/user_profile_bloc.dart';
+import 'package:foodbridge_volunteers_flutter/logic/user_profile/bloc/user_profile_event.dart';
+import 'package:foodbridge_volunteers_flutter/logic/user_profile/bloc/user_profile_state.dart';
 import 'package:image_picker/image_picker.dart';
+
 import '../../common/color_extension.dart';
+import '../../common_widget/round_button.dart';
 import '../../common_widget/round_textfield.dart';
 
-class ProfileView extends StatefulWidget {
+class ProfileView extends StatelessWidget {
   const ProfileView({super.key});
 
   @override
-  State<ProfileView> createState() => _ProfileViewState();
+  Widget build(BuildContext context) {
+    return const _ProfileViewBody();
+  }
 }
 
-class _ProfileViewState extends State<ProfileView> {
+class _ProfileViewBody extends StatefulWidget {
+  const _ProfileViewBody();
+
+  @override
+  State<_ProfileViewBody> createState() => _ProfileViewBodyState();
+}
+
+class _ProfileViewBodyState extends State<_ProfileViewBody> {
   final ImagePicker picker = ImagePicker();
   XFile? image;
 
-  TextEditingController txtName = TextEditingController();
-  TextEditingController txtEmail = TextEditingController();
-  TextEditingController txtMobile = TextEditingController();
-  TextEditingController txtAddress = TextEditingController();
-  TextEditingController txtPassword = TextEditingController();
-  TextEditingController txtConfirmPassword = TextEditingController();
+  final txtName = TextEditingController();
+  final txtEmail = TextEditingController();
+  final txtMobile = TextEditingController();
+  final txtAddress = TextEditingController();
+  final txtPassword = TextEditingController();
+  final txtConfirmPassword = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<UserProfileBloc>().add(FetchUserProfile());
+  }
+
+  @override
+  void dispose() {
+    txtName.dispose();
+    txtEmail.dispose();
+    txtMobile.dispose();
+    txtAddress.dispose();
+    txtPassword.dispose();
+    txtConfirmPassword.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-          const SizedBox(
-            height: 46,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Profile",
-                  style: TextStyle(
-                      color: TColor.primaryText,
-                      fontSize: 20,
-                      fontWeight: FontWeight.w800),
-                ),
-                // IconButton(
-                //   onPressed: () {
-                //     Navigator.push(
-                //         context,
-                //         MaterialPageRoute(
-                //             builder: (context) => const MyOrderView()));
-                //   },
-                //   icon: Image.asset(
-                //     "assets/img/shopping_cart.png",
-                //     width: 25,
-                //     height: 25,
-                //   ),
-                // ),
-              ],
-            ),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              color: TColor.placeholder,
-              borderRadius: BorderRadius.circular(50),
-            ),
-            alignment: Alignment.center,
-            child: image != null
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(50),
-                    child: Image.file(File(image!.path),
-                        width: 100, height: 100, fit: BoxFit.cover),
-                  )
-                : Icon(
-                    Icons.person,
-                    size: 65,
-                    color: TColor.secondaryText,
+      body: BlocConsumer<UserProfileBloc, UserProfileState>(
+        listener: (context, state) {
+          if (state is UserProfileLoaded) {
+            txtName.text = state.user.name ?? '';
+            txtEmail.text = state.user.email ?? '';
+            txtMobile.text = state.user.mobno ?? '';
+          }
+        },
+        builder: (context, state) {
+          if (state is UserProfileLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state is UserProfileError) {
+            return Center(child: Text("Error: ${state.message}"));
+          }
+
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 46),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Profile",
+                          style: TextStyle(
+                            color: TColor.primaryText,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-          ),
-          TextButton.icon(
-            onPressed: () async {
-              image = await picker.pickImage(source: ImageSource.gallery);
-              setState(() {});
-            },
-            icon: Icon(
-              Icons.edit,
-              color: TColor.primary,
-              size: 12,
+                  const SizedBox(height: 20),
+                  Container(
+                    width: 100,
+                    height: 100,
+                    decoration: BoxDecoration(
+                      color: TColor.placeholder,
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                    alignment: Alignment.center,
+                    child: image != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(50),
+                            child: Image.file(
+                              File(image!.path),
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        : Icon(
+                            Icons.person,
+                            size: 65,
+                            color: TColor.secondaryText,
+                          ),
+                  ),
+                  TextButton.icon(
+                    onPressed: () async {
+                      image =
+                          await picker.pickImage(source: ImageSource.gallery);
+                      setState(() {});
+                    },
+                    icon: Icon(Icons.edit, color: TColor.primary, size: 12),
+                    label: Text("Edit Profile",
+                        style: TextStyle(color: TColor.primary, fontSize: 12)),
+                  ),
+                  Text(
+                    "Hi there ${txtName.text}!",
+                    style: TextStyle(
+                      color: TColor.primaryText,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                    child: RoundTitleTextfield(
+                      title: "Name",
+                      hintText: "Enter a Username",
+                      controller: txtName,
+                    ),
+                  ),
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                    child: RoundTitleTextfield(
+                      title: "Email",
+                      hintText: "Enter Email",
+                      keyboardType: TextInputType.emailAddress,
+                      controller: txtEmail,
+                    ),
+                  ),
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                    child: RoundTitleTextfield(
+                      title: "Mobile No",
+                      hintText: "Enter Mobile No",
+                      controller: txtMobile,
+                      keyboardType: TextInputType.phone,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: RoundButton(
+                      title: "Save",
+                      onPressed: () {
+                        // context.read<UserProfileBloc>().add(UpdateUserProfile(
+                        //       name: txtName.text,
+                        //       email: txtEmail.text,
+                        //       mobile: txtMobile.text,
+                        //     ));
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                ],
+              ),
             ),
-            label: Text(
-              "Edit Profile",
-              style: TextStyle(color: TColor.primary, fontSize: 12),
-            ),
-          ),
-          Text(
-            "Hi there Jeevesh!",
-            style: TextStyle(
-                color: TColor.primaryText,
-                fontSize: 16,
-                fontWeight: FontWeight.w700),
-          ),
-          TextButton(
-            onPressed: () {},
-            child: Text(
-              "Log Out",
-              style: TextStyle(
-                  color: TColor.secondaryText,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w500),
-            ),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-            child: RoundTitleTextfield(
-              title: "Name",
-              hintText: "Enter Name",
-              controller: txtName,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-            child: RoundTitleTextfield(
-              title: "Email",
-              hintText: "Enter Email",
-              keyboardType: TextInputType.emailAddress,
-              controller: txtEmail,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-            child: RoundTitleTextfield(
-              title: "Mobile No",
-              hintText: "Enter Mobile No",
-              controller: txtMobile,
-              keyboardType: TextInputType.phone,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-            child: RoundTitleTextfield(
-              title: "Address",
-              hintText: "Enter Address",
-              controller: txtAddress,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-            child: RoundTitleTextfield(
-              title: "Password",
-              hintText: "* * * * * *",
-              obscureText: true,
-              controller: txtPassword,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-            child: RoundTitleTextfield(
-              title: "Confirm Password",
-              hintText: "* * * * * *",
-              obscureText: true,
-              controller: txtConfirmPassword,
-            ),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: RoundButton(title: "Save", onPressed: () {}),
-          ),
-          const SizedBox(
-            height: 20,
-          ),
-        ]),
+          );
+        },
       ),
-    ));
+    );
   }
 }

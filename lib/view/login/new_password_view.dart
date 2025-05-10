@@ -54,7 +54,7 @@ class _NewPasswordViewState extends State<NewPasswordView> {
               RoundTextfield(
                 hintText: "New Password",
                 controller: txtPassword,
-                obscureText: true,
+                obscureText: true, validator: (value) {  },
               ),
               const SizedBox(
                 height: 25,
@@ -62,7 +62,7 @@ class _NewPasswordViewState extends State<NewPasswordView> {
               RoundTextfield(
                 hintText: "Confirm Password",
                 controller: txtConfirmPassword,
-                obscureText: true,
+                obscureText: true, validator: (value) {  },
               ),
               const SizedBox(
                 height: 30,

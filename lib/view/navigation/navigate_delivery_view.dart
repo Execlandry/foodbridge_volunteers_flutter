@@ -13,15 +13,19 @@ import 'package:flutter_compass/flutter_compass.dart';
 import '../../common/color_extension.dart';
 
 class NavigateDeliveryView extends StatefulWidget {
-  final String pickupLocation;
-  final String dropLocation;
+  final double pickupLat;
+  final double pickupLng;
+  final double dropLat;
+  final double dropLng;
   final double amount;
 
   const NavigateDeliveryView({
     super.key,
-    required this.pickupLocation,
-    required this.dropLocation,
+    required this.pickupLat,
+    required this.pickupLng,
     required this.amount,
+    required this.dropLat,
+    required this.dropLng,
   });
 
   @override
@@ -76,7 +80,7 @@ class _NavigateDeliveryViewState extends State<NavigateDeliveryView> {
         }
       }
     });
-    await _fetchCoordinates(widget.dropLocation);
+    // await _fetchCoordinates(widget.dropLocation);
   }
 
   Future<bool> _checkAndRequestPermission() async {
@@ -134,7 +138,8 @@ class _NavigateDeliveryViewState extends State<NavigateDeliveryView> {
         }
       }
     } catch (e) {
-      print("Exception in fetching route: $e");
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text("Failed to load route")));
     }
   }
 
@@ -305,6 +310,7 @@ class _NavigateDeliveryViewState extends State<NavigateDeliveryView> {
                     hintText: "Enter 6-digit OTP",
                     controller: otpController,
                     keyboardType: TextInputType.number,
+                    validator: (value) {},
                   ),
                 ),
                 const SizedBox(height: 20),
