@@ -1,14 +1,14 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:foodbridge_volunteers_flutter/core/utils/token_storage.dart';
+import 'package:foodbridge_volunteers_flutter/core/utils/shared_storage.dart';
 
 class AppInterceptors extends Interceptor {
   AppInterceptors();
 
   @override
-  Future<void> onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
-    final token = await TokenStorage.getToken();
-    // debugPrint("received token from inceptor: $token");
+  Future<void> onRequest(
+      RequestOptions options, RequestInterceptorHandler handler) async {
+    final token = await SharedStorage.getToken();
     if (token != null) {
       options.headers['Authorization'] = 'Bearer $token';
     }

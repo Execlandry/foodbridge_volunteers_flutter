@@ -1,13 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:foodbridge_volunteers_flutter/common/color_extension.dart';
-// import 'package:food_delivery/common/extension.dart';
 import 'package:foodbridge_volunteers_flutter/common_widget/round_button.dart';
-import 'package:foodbridge_volunteers_flutter/view/login/new_password_view.dart';
 import 'package:foodbridge_volunteers_flutter/view/on_boarding/on_boarding_view.dart';
 import 'package:otp_pin_field/otp_pin_field.dart';
 
-// import '../../common/globs.dart';
-// import '../../common/service_call.dart';
 
 class OTPView extends StatefulWidget {
   // final String email;

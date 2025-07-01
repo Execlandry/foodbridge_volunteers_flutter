@@ -9,6 +9,7 @@ class RoundButton extends StatelessWidget {
   final RoundButtonType type;
   final double fontSize;
   final bool isLoading;
+  final IconData? icon; 
   
   const RoundButton({
     super.key,
@@ -17,11 +18,15 @@ class RoundButton extends StatelessWidget {
     this.isLoading = false,
     this.fontSize = 16,
     this.type = RoundButtonType.bgPrimary,
+    this.icon, 
   });
 
   @override
   Widget build(BuildContext context) {
     final loaderColor = type == RoundButtonType.bgPrimary 
+        ? TColor.white 
+        : TColor.primary;
+    final textIconColor = type == RoundButtonType.bgPrimary 
         ? TColor.white 
         : TColor.primary;
 
@@ -48,15 +53,23 @@ class RoundButton extends StatelessWidget {
                   valueColor: AlwaysStoppedAnimation<Color>(loaderColor),
                 ),
               )
-            : Text(
-                title,
-                style: TextStyle(
-                  color: type == RoundButtonType.bgPrimary 
-                      ? TColor.white 
-                      : TColor.primary,
-                  fontSize: fontSize,
-                  fontWeight: FontWeight.w600,
-                ),
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (icon != null) // Show icon if provided
+                    Icon(icon, color: textIconColor, size: fontSize + 2),
+                  if (icon != null)
+                    const SizedBox(width: 8), // Spacing between icon and text
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: textIconColor,
+                      fontSize: fontSize,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
       ),
     );

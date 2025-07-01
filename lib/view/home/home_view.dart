@@ -1,13 +1,17 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:foodbridge_volunteers_flutter/common/color_extension.dart';
+import 'package:foodbridge_volunteers_flutter/common_widget/components/gradient_bg.dart';
 import 'package:foodbridge_volunteers_flutter/common_widget/round_button.dart';
 import 'package:foodbridge_volunteers_flutter/common_widget/round_textfield.dart';
+import 'package:foodbridge_volunteers_flutter/core/model/available_order_model.dart';
+import 'package:foodbridge_volunteers_flutter/core/utils/helper_func.dart';
 import 'package:foodbridge_volunteers_flutter/logic/delivery/bloc/delivery_bloc.dart';
 import 'package:foodbridge_volunteers_flutter/logic/user_profile/bloc/user_profile_bloc.dart';
 import 'package:foodbridge_volunteers_flutter/logic/user_profile/bloc/user_profile_event.dart';
 import 'package:foodbridge_volunteers_flutter/logic/user_profile/bloc/user_profile_state.dart';
-import 'package:foodbridge_volunteers_flutter/view/maps/current_location_view.dart';
+import 'package:foodbridge_volunteers_flutter/view/navigation/current_location_view.dart';
 import 'package:foodbridge_volunteers_flutter/view/menu/item_details_view.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -96,12 +100,18 @@ class _HomeViewState extends State<HomeView> {
       if (placemarks.isNotEmpty) {
         Placemark place = placemarks.first;
         setState(() {
-          _actualLocation =
-              "${place.name}, ${place.locality}, ${place.administrativeArea}";
+          _actualLocation = [
+            place.name,
+            place.locality,
+            place.administrativeArea
+          ]
+              .where((part) => part?.isNotEmpty ?? false)
+              .map((part) => capitalizeWords(part!))
+              .join(", ");
         });
       }
     } catch (e) {
-      print("Error getting address: $e");
+      if (kDebugMode) print("Error getting address: $e");
       setState(() {
         _actualLocation = "Location not available";
       });
@@ -119,17 +129,7 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
-        body: DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                TColor.primary.withOpacity(0.05),
-                TColor.primary.withOpacity(0.01),
-              ],
-            ),
-          ),
+        body: GradientBackground(
           child: SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
@@ -155,10 +155,18 @@ class _HomeViewState extends State<HomeView> {
   Widget _buildHeaderSection() {
     return BlocBuilder<UserProfileBloc, UserProfileState>(
       builder: (context, userState) {
-        String userName = "Guest"; // Default value
+        String userName = "Guest";
 
         if (userState is UserProfileLoaded) {
-          userName = userState.user.name ?? "User";
+          final user = userState.user;
+          if (user.name != null && user.name!.isNotEmpty) {
+            userName = capitalizeWords(user.name!);
+          } else {
+            userName = [user.firstName, user.lastName]
+                .where((part) => part?.isNotEmpty ?? false)
+                .map((part) => capitalizeWords(part!))
+                .join(" ");
+          }
         } else if (userState is UserProfileError) {
           userName = "User";
         }
@@ -262,13 +270,7 @@ class _HomeViewState extends State<HomeView> {
             child: RoundButton(
               title: "Update Location",
               onPressed: _navigateToCurrentLocationView,
-              // height: 40,
               fontSize: 14,
-              // icon: Icon(
-              //   Icons.location_on_outlined,
-              //   color: TColor.white,
-              //   size: 18,
-              // ),
             ),
           ),
       ],
@@ -277,7 +279,7 @@ class _HomeViewState extends State<HomeView> {
 
   Widget _buildSearchSection() {
     return RoundTextfield(
-      hintText: "Search deliveries...",
+      hintText: "Search orders by cities...",
       controller: txtSearch,
       bgColor: Colors.white,
       left: Icon(
@@ -294,7 +296,7 @@ class _HomeViewState extends State<HomeView> {
     return Column(
       children: [
         ViewAllTitleRow(
-          title: "Available Deliveries",
+          title: "Available for Delivery",
           onView: () => setState(() => _showAll = !_showAll),
         ),
         const SizedBox(height: 16),
@@ -326,13 +328,13 @@ class _HomeViewState extends State<HomeView> {
     );
   }
 
-  Widget _buildDeliveryList(List<dynamic> orders) {
+  Widget _buildDeliveryList(List<AvailableOrder> orders) {
+    final searchLower = txtSearch.text.toLowerCase();
     final filteredOrders = orders.where((order) {
-      final searchLower = txtSearch.text.toLowerCase();
-      return order.order.business.name.toLowerCase().contains(searchLower) ||
-          order.order.address.city.toLowerCase().contains(searchLower) ||
-          order.order.menuItems
-              .any((item) => item.name.toLowerCase().contains(searchLower));
+      return order.order.business.address.city
+              .toLowerCase()
+              .contains(searchLower) ||
+          order.order.address.city.toLowerCase().contains(searchLower);
     }).toList();
 
     if (filteredOrders.isEmpty) {
@@ -341,16 +343,14 @@ class _HomeViewState extends State<HomeView> {
 
     return ListView.separated(
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount:
-          _showAll ? filteredOrders.length : filteredOrders.take(3).length,
+      itemCount: filteredOrders.length,
       separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final order = filteredOrders[index];
         return RecentItemRow(
           price: order.order.amount,
-          originCity: order.order.business.name,
-          destinationCity: order.order.address.city,
+          originCity: capitalizeWords(order.order.business.address.city),
+          destinationCity: capitalizeWords(order.order.address.city),
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
@@ -377,7 +377,7 @@ class _HomeViewState extends State<HomeView> {
           ),
           const SizedBox(height: 16),
           Text(
-            "No deliveries available",
+            "No Orders Available",
             style: TextStyle(
               color: TColor.secondaryText,
               fontSize: 16,
@@ -411,7 +411,7 @@ class _HomeViewState extends State<HomeView> {
             ),
             const SizedBox(height: 16),
             Text(
-              "Oops! Something went wrong",
+              "Oops! Something Went Wrong",
               style: TextStyle(
                 color: TColor.primaryText,
                 fontSize: 16,

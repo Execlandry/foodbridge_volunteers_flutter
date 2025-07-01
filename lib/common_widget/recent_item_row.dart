@@ -17,6 +17,10 @@ class RecentItemRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    double parsedPrice = double.tryParse(price) ?? 0.0;
+    double netAmount = parsedPrice * 0.2;
+    String netAmountStr = netAmount.toStringAsFixed(2);
+
     return Card(
       elevation: 2,
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -29,14 +33,6 @@ class RecentItemRow extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                TColor.primary.withOpacity(0.05),
-                TColor.primary.withOpacity(0.15),
-              ],
-            ),
             borderRadius: BorderRadius.circular(15),
           ),
           child: Row(
@@ -74,6 +70,29 @@ class RecentItemRow extends StatelessWidget {
                             color: TColor.primaryText,
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Fee: ₹',
+                          style: TextStyle(
+                            color: TColor.secondaryText,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        TextSpan(
+                          text: netAmountStr,
+                          style: TextStyle(
+                            color: TColor.secondaryText,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],

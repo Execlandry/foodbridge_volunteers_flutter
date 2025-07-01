@@ -4,7 +4,7 @@ import 'package:foodbridge_volunteers_flutter/common/color_extension.dart';
 import 'package:foodbridge_volunteers_flutter/logic/auth/bloc/auth_bloc.dart';
 import 'package:foodbridge_volunteers_flutter/logic/auth/bloc/auth_event.dart';
 import 'package:foodbridge_volunteers_flutter/logic/auth/bloc/auth_state.dart';
-import 'package:foodbridge_volunteers_flutter/view/main_tabview/main_tabview.dart';
+import 'package:foodbridge_volunteers_flutter/common_widget/components/navbar_view.dart';
 import '../../common_widget/round_button.dart';
 import '../../common_widget/round_textfield.dart';
 import 'reset_password_view.dart';
@@ -37,7 +37,7 @@ class _LoginViewState extends State<LoginView> {
         if (state is AuthAuthenticated) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => const MainTabView()),
+            MaterialPageRoute(builder: (context) => const NavbarView()),
           );
         }
         if (state is AuthFailure) {
@@ -93,7 +93,7 @@ class _LoginViewState extends State<LoginView> {
               const SizedBox(height: 4),
               _buildForgotPassword(),
               const SizedBox(height: 25),
-              _buildSocialLogin(),
+              // _buildSocialLogin(),
               const SizedBox(height: 20),
               _buildSignUpRedirect(),
             ],
@@ -169,31 +169,31 @@ class _LoginViewState extends State<LoginView> {
     );
   }
 
-  Widget _buildSocialLogin() {
-    return Column(
-      children: [
-        Text(
-          "or",
-          style: TextStyle(
-            color: TColor.secondaryText,
-            fontSize: 14,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        const SizedBox(height: 15),
-        Text(
-          "Login With",
-          style: TextStyle(
-            color: TColor.secondaryText,
-            fontSize: 14,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        const SizedBox(height: 30),
-        // Add your social login buttons here
-      ],
-    );
-  }
+  // Widget _buildSocialLogin() {
+  //   return Column(
+  //     children: [
+  //       Text(
+  //         "or",
+  //         style: TextStyle(
+  //           color: TColor.secondaryText,
+  //           fontSize: 14,
+  //           fontWeight: FontWeight.w700,
+  //         ),
+  //       ),
+  //       const SizedBox(height: 15),
+  //       Text(
+  //         "Login With",
+  //         style: TextStyle(
+  //           color: TColor.secondaryText,
+  //           fontSize: 14,
+  //           fontWeight: FontWeight.w500,
+  //         ),
+  //       ),
+  //       const SizedBox(height: 30),
+  //       // Add your social login buttons here
+  //     ],
+  //   );
+  // }
 
   Widget _buildSignUpRedirect() {
     return TextButton(

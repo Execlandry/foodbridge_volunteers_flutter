@@ -2,13 +2,14 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:foodbridge_volunteers_flutter/core/api/api_endpoints.dart';
 import 'package:foodbridge_volunteers_flutter/core/api/dio_client.dart';
-import 'package:foodbridge_volunteers_flutter/core/utils/token_storage.dart';
+import 'package:foodbridge_volunteers_flutter/core/utils/shared_storage.dart';
 
 class AuthRepository {
   final dio = DioClient().dio;
 
   Future<void> registerUser({
-    required String name,
+    required String firstName,
+    required String lastName,
     required String email,
     required String password,
     required String mobno,
@@ -17,7 +18,8 @@ class AuthRepository {
       final response = await dio.post(
         ApiEndpoints.authRegisterDeliveryUser,
         data: {
-          "name": name,
+          "first_name": firstName,
+          "last_name": lastName,
           "email": email,
           "password": password,
           "mobno": mobno,
@@ -26,7 +28,6 @@ class AuthRepository {
 
       if (response.statusCode == 201) {
         debugPrint("User registered successfully");
-        // Consider returning user data if needed
       } else {
         debugPrint("Unexpected status code: ${response.statusCode}");
         throw Exception("Registration failed: ${response.statusCode}");
@@ -59,7 +60,7 @@ class AuthRepository {
           throw Exception("Access token missing in response");
         }
 
-        await TokenStorage.saveToken(accessToken);
+        await SharedStorage.saveToken(accessToken);
         debugPrint("User login successful");
         return accessToken;
       } else {
@@ -73,6 +74,30 @@ class AuthRepository {
     } catch (e) {
       debugPrint("Unexpected error: $e");
       throw Exception("Login failed: $e");
+    }
+  }
+
+  Future<String> stripeRefreshUrl() async {
+    try {
+      final response = await dio.post(
+        ApiEndpoints.stripeOnboardingUrl,
+      );
+
+      if (response.statusCode == 201) {
+        final onboardingUrl = response.data['onboarding_url'] as String;
+        return onboardingUrl;
+      } else {
+        debugPrint("Unexpected status code: ${response.statusCode}");
+        throw Exception(
+            "Failed to generate stripe onboarding url: ${response.statusCode}");
+      }
+    } on DioException catch (e) {
+      debugPrint("DioError: ${e.response?.data ?? e.message}");
+      throw Exception(
+          "Failed to generate stripe onboarding url: ${e.response?.data?['message'] ?? e.message}");
+    } catch (e) {
+      debugPrint("Unexpected error: $e");
+      throw Exception("Failed to generate stripe onboarding url: $e");
     }
   }
 }
