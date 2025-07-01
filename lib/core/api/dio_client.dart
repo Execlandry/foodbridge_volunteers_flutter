@@ -4,7 +4,7 @@ import 'package:foodbridge_volunteers_flutter/core/config/app_url.dart';
 
 class DioClient {
   static final DioClient _instance = DioClient._internal();
-  
+
   late final Dio dio;
   bool _isInitialized = false;
 
@@ -28,7 +28,7 @@ class DioClient {
       },
     ));
 
-    dio.interceptors.add(AppInterceptors()); 
+    dio.interceptors.add(AppInterceptors());
     _isInitialized = true;
   }
 

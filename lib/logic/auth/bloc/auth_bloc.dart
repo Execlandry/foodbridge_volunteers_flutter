@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:foodbridge_volunteers_flutter/core/repository/auth_repository.dart';
-import 'package:foodbridge_volunteers_flutter/core/utils/token_storage.dart';
+import 'package:foodbridge_volunteers_flutter/core/utils/shared_storage.dart';
 import 'auth_event.dart';
 import 'auth_state.dart';
 
@@ -19,7 +19,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       AppStartCheck event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
-      final token = await TokenStorage.getToken();
+      final token = await SharedStorage.getToken();
       if (token != null)
         emit(AuthAuthenticated(token));
       else
@@ -36,7 +36,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       await authRepository.loginUser(
           email: event.email, password: event.password);
 
-      final token = await TokenStorage.getToken();
+      final token = await SharedStorage.getToken();
       emit(AuthAuthenticated(token!));
     } catch (e) {
       emit(AuthFailure(e.toString()));
@@ -47,7 +47,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       LoggedOutRequestedUserEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
     try {
-      await TokenStorage.clearToken();
+      await SharedStorage.clearToken();
       emit(AuthUnauthenticated());
     } catch (e) {
       emit(AuthFailure("Logout failed: ${e.toString()}"));
@@ -61,7 +61,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     try {
       await authRepository.registerUser(
-        name: event.name,
+        firstName: event.firstName,
+        lastName: event.lastName,
         email: event.email,
         password: event.password,
         mobno: event.mobno,

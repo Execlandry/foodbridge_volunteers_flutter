@@ -11,18 +11,26 @@ class ApiEndpoints {
   static const authUserProfile = '$auth/users/profile';
 
   //delivery-service endpoints
+  static const pickupCurrentLocation='$delivery/delivery/current-location';
+  static const deliveryCurrentLocation='$delivery/delivery/current-location';
   static const authRegisterDeliveryUser = '$auth/partners/register';
+  static const stripeOnboardingUrl = '$auth/partners/refresh-onboarding-url';
 
   static const delivery='$_v1/delivery-service';
+  static const createPaymentIntent='$delivery/payouts/create-payment-intent';
+  static String acceptOrderId(String orderId) => '$createPaymentIntent/$orderId';
+
+
   static const getAvailableOrders='$delivery/delivery/available-orders';
+  static const getCurrentOrders='$delivery/delivery/current-orders';
+  
+  static const acceptDeliveryOrder='$delivery/delivery/accept';
+  static String acceptOrderById(String orderId) => '$acceptDeliveryOrder/$orderId';
 
-  static const cart = '$_v1/cart-service';
-  static const business = '$_v1/business-service';
-  static const files = '$_v1/files-service';
-  static const payment = '$_v1/payment-service';
 
-  // Delivery endpoints
-  // static const deliveryHealth = '$delivery/health';
+  static const getOrderWithSuccessfulPayout='$delivery/delivery/order-history';
 
-  // etc...
+  static const verifyOtpAtPickup='$delivery/delivery/verify-otp';
+  static const checkOtpVerified='$delivery/delivery/order-otp-status';
+
 }

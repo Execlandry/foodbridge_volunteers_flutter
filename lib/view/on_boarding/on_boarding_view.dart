@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:foodbridge_volunteers_flutter/common/color_extension.dart';
 import 'package:foodbridge_volunteers_flutter/common_widget/round_button.dart';
-import 'package:foodbridge_volunteers_flutter/view/main_tabview/main_tabview.dart';
+import 'package:foodbridge_volunteers_flutter/common_widget/components/navbar_view.dart';
 
 class OnBoardingView extends StatefulWidget {
   const OnBoardingView({super.key});
@@ -133,11 +133,11 @@ class _OnBoardingViewState extends State<OnBoardingView> {
                     title: "Next",
                     onPressed: () {
                       if (selectPage >= 2) {
-                        // Go to Home Screen or MainTabView
+                        // Go to Home Screen or NavbarView
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const MainTabView(),
+                            builder: (context) => const NavbarView(),
                           ),
                         );
                       } else {

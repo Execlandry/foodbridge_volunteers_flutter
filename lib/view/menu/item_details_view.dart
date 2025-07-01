@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:foodbridge_volunteers_flutter/common_widget/round_button.dart';
+import 'package:foodbridge_volunteers_flutter/core/utils/helper_func.dart';
 import 'package:foodbridge_volunteers_flutter/view/menu/checkout_view.dart';
-import 'package:foodbridge_volunteers_flutter/view/more/my_order_view.dart';
 import '../../common/color_extension.dart';
 
 class ItemDetailsView extends StatefulWidget {
@@ -19,315 +19,250 @@ class _ItemDetailsViewState extends State<ItemDetailsView> {
   @override
   Widget build(BuildContext context) {
     var media = MediaQuery.of(context).size;
+    final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: TColor.white,
+      backgroundColor: TColor.lightGrey,
       body: SafeArea(
         child: Stack(
           children: [
             Positioned(
               top: 0,
-              child: Image.network(
-                widget.itemDetails['order']['business']['banner'] ??
-                    '', // Ensure path matches your data structure
-                width: media.width,
-                height: media.width,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Image.asset(
-                  "assets/img/volunteerjpg.jpg", // Fallback image
-                  width: media.width,
-                  height: media.width,
-                  fit: BoxFit.cover,
-                ),
+              child: Stack(
+                children: [
+                  Image.network(
+                    widget.itemDetails['order']['business']['banner'] ?? '',
+                    width: media.width,
+                    height: media.width * 0.9,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Image.asset(
+                      "assets/img/volunteerjpg.jpg",
+                      width: media.width,
+                      height: media.width * 0.9,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  Container(
+                    height: media.width * 0.9,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.black.withOpacity(0.3),
+                          Colors.transparent
+                        ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             SingleChildScrollView(
               child: Column(
                 children: [
-                  SizedBox(height: media.width - 50), // Space for the image
-
-                  /// Scrollable section with a colored background
+                  SizedBox(height: media.width * 0.8),
                   Container(
                     width: media.width,
                     decoration: BoxDecoration(
-                      color: Colors.white, // Light background
+                      color: TColor.lightGrey,
                       borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(30),
-                        topRight: Radius.circular(30),
+                        topLeft: Radius.circular(40),
+                        topRight: Radius.circular(40),
                       ),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        /// White details section
-                        Container(
-                          width: media.width * 1.0,
-                          padding: const EdgeInsets.all(20),
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(30),
-                              topRight: Radius.circular(30),
-                              bottomLeft: Radius.circular(30),
-                              bottomRight: Radius.circular(30),
-                            ),
-                          ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 25, vertical: 20),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // Text(
-                              // widget.itemDetails['food_name'],
-                              //   style: TextStyle(
-                              //       color: TColor.primaryText,
-                              //       fontSize: 22,
-                              //       fontWeight: FontWeight.w800),
-                              // ),
-                              const SizedBox(height: 20),
                               Center(
                                 child: Text(
-                                  "Details of the delivery",
-                                  style: TextStyle(
-                                      color: TColor.primaryText,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w700),
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-
-                              /// Details Section
-                              _buildDetailRow("Order ID", widget.itemId),
-
-                              const SizedBox(height: 10),
-
-                              _buildDetailRow(
-                                "Business Name",
-                                widget.itemDetails['order']['business']['name']
-                                        ?.toString() ??
-                                    "N/A",
-                              ),
-
-                              _buildDetailRow(
-                                "Organisation Name",
-                                widget.itemDetails['order']['address']['name']
-                                        ?.toString() ??
-                                    "N/A",
-                              ),
-
-                              const SizedBox(height: 10),
-
-                              _buildDetailRow(
-                                "Pickup Location",
-                                "${widget.itemDetails['order']['business']['street'] ?? ''}, "
-                                    "${widget.itemDetails['order']['business']['city'] ?? ''}",
-                              ),
-
-                              _buildDetailRow(
-                                "Drop Location",
-                                "${widget.itemDetails['order']['address']['street'] ?? ''}, "
-                                    "${widget.itemDetails['order']['address']['city'] ?? ''}",
-                              ),
-                              const SizedBox(height: 20),
-
-                              Center(
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      "Total Amount",
-                                      style: TextStyle(
-                                        color: TColor.primaryText,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    Text(
-                                      widget.itemDetails['order']['amount'] ==
-                                              "0"
-                                          ? "Free"
-                                          : "Rs ${(double.tryParse(widget.itemDetails['order']['amount'] ?? '0') ?? 0.0).toStringAsFixed(2)}",
-                                      style: TextStyle(
-                                        color: TColor.primaryText,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              // Center(
-                              //   child: _buildDetailRow(
-                              //     "Total Amount",
-                              //     (widget.itemDetails['order']['amount'] == "0"
-                              //         ? "Free"
-                              //         : "Rs ${(double.tryParse(widget.itemDetails['order']['amount'] ?? '0') ?? 0.0).toStringAsFixed(2)}"),
-                              //   ),
-                              // ),
-
-                              // _buildDetailRow("Food Quantity",
-                              //     "${widget.itemDetails['food_quantity']} portions"),
-
-                              // const SizedBox(height: 20),
-                            ],
-                          ),
-                        ),
-
-                        /// Button section with primary background starting from the left
-                        SizedBox(
-                          height: 180,
-                          child: Stack(
-                            alignment: Alignment.centerLeft,
-                            children: [
-                              /// Primary color background starting from the left
-                              Positioned(
-                                left: 0,
-                                child: Container(
-                                  width: media.width * 0.25,
-                                  height: 160,
-                                  decoration: BoxDecoration(
-                                    color: TColor.primary,
-                                    borderRadius: const BorderRadius.only(
-                                      topRight: Radius.circular(35),
-                                      bottomRight: Radius.circular(35),
-                                    ),
+                                  "Delivery Details",
+                                  style:
+                                      theme.textTheme.headlineSmall?.copyWith(
+                                    color: TColor.primaryText,
+                                    fontWeight: FontWeight.w800,
                                   ),
                                 ),
                               ),
-
-                              Center(
-                                child: Stack(
-                                  alignment: Alignment.centerRight,
-                                  children: [
-                                    Container(
-                                        margin: const EdgeInsets.only(
-                                            top: 8,
-                                            bottom: 8,
-                                            left: 10,
-                                            right: 20),
-                                        width: media.width - 80,
-                                        height: 120,
-                                        decoration: const BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.only(
-                                                topLeft: Radius.circular(35),
-                                                bottomLeft: Radius.circular(35),
-                                                topRight: Radius.circular(35),
-                                                bottomRight:
-                                                    Radius.circular(35)),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                  color: Colors.black12,
-                                                  blurRadius: 12,
-                                                  offset: Offset(0, 4))
-                                            ]),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            SizedBox(
-                                              width: 180,
-                                              height: 65,
-                                              child: RoundButton(
-                                                title: "Proceed",
-                                                onPressed: () {
-                                                  Navigator.push(
-                                                    context,
-                                                    MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          CheckoutView(
-                                                        pickupLat: double.tryParse(widget
-                                                                    .itemDetails[
-                                                                        'order']
-                                                                        [
-                                                                        'business']
-                                                                        [
-                                                                        'latitude']
-                                                                    ?.toString() ??
-                                                                '0') ??
-                                                            0.0,
-                                                        pickupLng: double.tryParse(widget
-                                                                    .itemDetails[
-                                                                        'order']
-                                                                        [
-                                                                        'business']
-                                                                        [
-                                                                        'longitude']
-                                                                    ?.toString() ??
-                                                                '0') ??
-                                                            0.0,
-                                                        dropLat: double.tryParse(widget
-                                                                    .itemDetails[
-                                                                        'order']
-                                                                        [
-                                                                        'address']
-                                                                        ['lat']
-                                                                    ?.toString() ??
-                                                                '0') ??
-                                                            0.0,
-                                                        dropLng: double.tryParse(widget
-                                                                    .itemDetails[
-                                                                        'order']
-                                                                        [
-                                                                        'address']
-                                                                        ['long']
-                                                                    ?.toString() ??
-                                                                '0') ??
-                                                            0.0,
-                                                        dropLocation:
-                                                            "${widget.itemDetails['order']['address']['street'] ?? ''}, "
-                                                            "${widget.itemDetails['order']['address']['city'] ?? ''}",
-                                                        amount: double.tryParse(widget
-                                                                    .itemDetails[
-                                                                        'order']
-                                                                        [
-                                                                        'amount']
-                                                                    ?.toString() ??
-                                                                '0') ??
-                                                            0.0,
-                                                        pickupLocation:
-                                                            "${widget.itemDetails['order']['business']['street'] ?? ''}, "
-                                                            "${widget.itemDetails['order']['business']['city'] ?? ''}",
-                                                      ),
-                                                    ),
-                                                  );
-                                                },
-                                              ),
-                                            )
-                                          ],
-                                        )),
-                                    // InkWell(
-
-                                    //   onTap: () {
-                                    //     Navigator.push(
-                                    //         context,
-                                    //         MaterialPageRoute(
-                                    //             builder: (context) =>
-                                    //                 const MyOrderView()));
-                                    //   },
-                                    //   child: Container(
-                                    //     width: 45,
-                                    //     height: 45,
-                                    //     decoration: BoxDecoration(
-                                    //         color: Colors.white,
-                                    //         borderRadius:
-                                    //             BorderRadius.circular(22.5),
-                                    //         boxShadow: const [
-                                    //           BoxShadow(
-                                    //               color: Colors.black12,
-                                    //               blurRadius: 4,
-                                    //               offset: Offset(0, 2))
-                                    //         ]),
-                                    //     alignment: Alignment.center,
-                                    //     child: Image.asset(
-                                    //         "assets/img/shopping_cart.png",
-                                    //         width: 20,
-                                    //         height: 20,
-                                    //         color: TColor.primary),
-                                    //   ),
-                                    // ),
+                              const SizedBox(height: 25),
+                              _buildDetailCard(
+                                icon: Icons.receipt_long,
+                                title: "Order ID",
+                                value: widget.itemId.substring(0, 8),
+                              ),
+                              _buildDetailCard(
+                                icon: Icons.store,
+                                title: "Business Name",
+                                value: capitalizeWords(
+                                  widget.itemDetails['order']['business']
+                                              ['name']
+                                          ?.toString() ??
+                                      "N/A",
+                                ),
+                              ),
+                              _buildDetailCard(
+                                icon: Icons.people,
+                                title: "Organization Name",
+                                value: capitalizeWords(
+                                  widget.itemDetails['order']['address']['user']
+                                              ['name']
+                                          ?.toString() ??
+                                      "N/A",
+                                ),
+                              ),
+                              _buildDetailCard(
+                                icon: Icons.pin_drop,
+                                title: "Pickup Location",
+                                value: [
+                                  widget.itemDetails['order']['business']
+                                      ['address']['street'],
+                                  widget.itemDetails['order']['business']
+                                      ['address']['city'],
+                                  widget.itemDetails['order']['business']
+                                      ['address']['state']
+                                ]
+                                    .where((part) => part?.isNotEmpty ?? false)
+                                    .map((part) => capitalizeWords(part!))
+                                    .join(", "),
+                              ),
+                              _buildDetailCard(
+                                icon: Icons.location_on,
+                                title: "Drop Location",
+                                value: [
+                                  widget.itemDetails['order']['address']
+                                      ['street'],
+                                  widget.itemDetails['order']['address']
+                                      ['city'],
+                                  widget.itemDetails['order']['address']
+                                      ['state']
+                                ]
+                                    .where((part) => part?.isNotEmpty ?? false)
+                                    .map((part) => capitalizeWords(part!))
+                                    .join(", "),
+                              ),
+                              const SizedBox(height: 20),
+                              Container(
+                                padding: const EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.1),
+                                      spreadRadius: 2,
+                                      blurRadius: 8,
+                                      offset: const Offset(0, 4),
+                                    ),
                                   ],
                                 ),
-                              )
+                                child: Center(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "Total Amount",
+                                        style:
+                                            theme.textTheme.bodyLarge?.copyWith(
+                                          color: TColor.secondaryText,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        widget.itemDetails['order']['amount'] ==
+                                                "0"
+                                            ? "Free"
+                                            : "₹${(double.tryParse(widget.itemDetails['order']['amount'] ?? 0.0)?.toStringAsFixed(2))}",
+                                        style: theme.textTheme.headlineMedium
+                                            ?.copyWith(
+                                          color: TColor.primary,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 30),
+                              RoundButton(
+                                title: "Proceed to Delivery",
+                                icon: Icons.directions_car,
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => CheckoutView(
+                                        pickupLat: double.tryParse(widget
+                                                    .itemDetails['order']
+                                                        ['business']['latitude']
+                                                    ?.toString() ??
+                                                '0') ??
+                                            0.0,
+                                        pickupLng: double.tryParse(widget
+                                                    .itemDetails['order']
+                                                        ['business']
+                                                        ['longitude']
+                                                    ?.toString() ??
+                                                '0') ??
+                                            0.0,
+                                        dropLat: double.tryParse(widget
+                                                    .itemDetails['order']
+                                                        ['address']['lat']
+                                                    ?.toString() ??
+                                                '0') ??
+                                            0.0,
+                                        dropLng: double.tryParse(widget
+                                                    .itemDetails['order']
+                                                        ['address']['long']
+                                                    ?.toString() ??
+                                                '0') ??
+                                            0.0,
+                                        dropLocation: [
+                                          widget.itemDetails['order']['address']
+                                              ['street'],
+                                          widget.itemDetails['order']['address']
+                                              ['city']
+                                        ]
+                                            .where((part) =>
+                                                part?.isNotEmpty ?? false)
+                                            .map((part) =>
+                                                capitalizeWords(part!))
+                                            .join(", "),
+                                        amount: double.tryParse(widget
+                                                    .itemDetails['order']
+                                                        ['amount']
+                                                    ?.toString() ??
+                                                '0') ??
+                                            0.0,
+                                        pickupLocation: [
+                                          widget.itemDetails['order']
+                                              ['business']['address']['street'],
+                                          widget.itemDetails['order']
+                                              ['business']['address']['city']
+                                        ]
+                                            .where((part) =>
+                                                part?.isNotEmpty ?? false)
+                                            .map((part) =>
+                                                capitalizeWords(part!))
+                                            .join(", "),
+                                        itemId: (widget.itemDetails['order']
+                                                        ['id']
+                                                    ?.toString() ??
+                                                '')
+                                            .trim(),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 20),
                             ],
                           ),
                         ),
@@ -337,33 +272,26 @@ class _ItemDetailsViewState extends State<ItemDetailsView> {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20),
-              child: Column(
-                children: [
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(),
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 4,
-                              offset: Offset(0, 2))
-                        ],
-                      ),
-                      child: IconButton(
-                        icon: Icon(Icons.arrow_back, color: TColor.primary),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                    ),
-                  ),
-                ],
+            Positioned(
+              top: 40,
+              left: 20,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.9),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.3),
+                      spreadRadius: 2,
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    )
+                  ],
+                ),
+                child: IconButton(
+                  icon: Icon(Icons.arrow_back, color: TColor.primary),
+                  onPressed: () => Navigator.pop(context),
+                ),
               ),
             ),
           ],
@@ -372,20 +300,57 @@ class _ItemDetailsViewState extends State<ItemDetailsView> {
     );
   }
 
-  Widget _buildDetailRow(String title, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 5),
-      child: Text(
-        "$title: $value",
-        style: TextStyle(
-          color: TColor.primaryText,
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-        ),
+  Widget _buildDetailCard({
+    required IconData icon,
+    required String title,
+    required String value,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 15),
+      padding: const EdgeInsets.all(15),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: TColor.primary, size: 22),
+          const SizedBox(width: 15),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: TColor.secondaryText,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: TextStyle(
+                    color: TColor.primaryText,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 }
-
- /// Helper Method to Build Detail Row
-

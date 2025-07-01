@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:foodbridge_volunteers_flutter/common_widget/components/navbar_view.dart';
 import 'package:foodbridge_volunteers_flutter/common_widget/round_button.dart';
-import 'package:foodbridge_volunteers_flutter/view/home/home_view.dart';
 import '../../common/color_extension.dart';
 
 class CheckoutMessageView extends StatefulWidget {
@@ -33,21 +33,6 @@ class _CheckoutMessageViewState extends State<CheckoutMessageView> {
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    icon: Icon(
-                      Icons.close,
-                      color: TColor.primaryText,
-                      size: 25,
-                    ),
-                  )
-                ],
-              ),
               Image.asset(
                 "assets/img/thank_you.png",
                 width: media.width * 0.55,
@@ -77,12 +62,12 @@ class _CheckoutMessageViewState extends State<CheckoutMessageView> {
                 height: 35,
               ),
               RoundButton(
-                  title: "Go To Home",
+                  title: "Browse Other Orders",
                   onPressed: () {
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const HomeView(),
+                        builder: (context) => NavbarView(),
                       ),
                     );
                   }),

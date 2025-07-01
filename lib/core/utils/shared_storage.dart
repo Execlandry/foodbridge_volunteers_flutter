@@ -3,13 +3,12 @@ import 'package:foodbridge_volunteers_flutter/core/api/api_endpoints.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:foodbridge_volunteers_flutter/core/config/app_url.dart';
 
-class TokenStorage {
+class SharedStorage {
   static const _tokenKey = 'access_token';
-
 
   static Future<void> saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_tokenKey,token);
+    await prefs.setString(_tokenKey, token);
   }
 
   static Future<String?> getToken() async {
@@ -17,7 +16,6 @@ class TokenStorage {
     return prefs.getString(_tokenKey);
   }
 
-  
   static Future<void> clearToken() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_tokenKey);

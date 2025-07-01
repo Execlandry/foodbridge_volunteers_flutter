@@ -17,7 +17,8 @@ class SignUpView extends StatefulWidget {
 
 class _SignUpViewState extends State<SignUpView> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController txtName = TextEditingController();
+  final TextEditingController txtFirstName = TextEditingController();
+  final TextEditingController txtLastName = TextEditingController();
   final TextEditingController txtMobile = TextEditingController();
   final TextEditingController txtEmail = TextEditingController();
   final TextEditingController txtPassword = TextEditingController();
@@ -28,7 +29,8 @@ class _SignUpViewState extends State<SignUpView> {
 
   @override
   void dispose() {
-    txtName.dispose();
+    txtFirstName.dispose();
+    txtLastName.dispose();
     txtMobile.dispose();
     txtEmail.dispose();
     txtPassword.dispose();
@@ -51,11 +53,15 @@ class _SignUpViewState extends State<SignUpView> {
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthRegistrationSuccess) {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const LoginView()),
-            );
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Registration Successful")),
+              );
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginView()),
+              );
           }
+
           if (state is AuthFailure) {
             _showErrorSnackbar(state.error);
           }
@@ -102,23 +108,41 @@ class _SignUpViewState extends State<SignUpView> {
     return Column(
       children: [
         RoundTextfield(
-          hintText: "Name",
-          controller: txtName,
-          validator: (value) => value!.isEmpty ? 'Enter your name' : null,
+          hintText: "First Name",
+          controller: txtFirstName,
+          validator: (value) =>
+              value!.trim().isEmpty ? 'Enter your first name' : null,
+        ),
+        const SizedBox(height: 25),
+        RoundTextfield(
+          hintText: "Last Name",
+          controller: txtLastName,
+          validator: (value) =>
+              value!.trim().isEmpty ? 'Enter your last name' : null,
         ),
         const SizedBox(height: 25),
         RoundTextfield(
           hintText: "Email",
           controller: txtEmail,
           keyboardType: TextInputType.emailAddress,
-          validator: (value) => value!.contains('@') ? null : 'Enter valid email',
+          validator: (value) {
+            final email = value!.trim();
+            return RegExp(r"^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$").hasMatch(email)
+                ? null
+                : 'Enter valid email';
+          },
         ),
         const SizedBox(height: 25),
         RoundTextfield(
           hintText: "Mobile No",
           controller: txtMobile,
           keyboardType: TextInputType.phone,
-          validator: (value) => value!.length == 10 ? null : 'Enter valid mobile number',
+          validator: (value) {
+            final val = value!.trim();
+            return RegExp(r'^[0-9]{10}$').hasMatch(val)
+                ? null
+                : 'Enter valid 10-digit mobile number';
+          },
         ),
         const SizedBox(height: 25),
         _buildPasswordField(),
@@ -133,7 +157,8 @@ class _SignUpViewState extends State<SignUpView> {
       hintText: "Password",
       controller: txtPassword,
       obscureText: _isPasswordHidden,
-      validator: (value) => value!.length >= 6 ? null : 'Minimum 6 characters',
+      validator: (value) =>
+          value!.trim().length >= 6 ? null : 'Minimum 6 characters',
       suffixIcon: IconButton(
         icon: Icon(_isPasswordHidden ? Icons.visibility_off : Icons.visibility),
         onPressed: () => setState(() => _isPasswordHidden = !_isPasswordHidden),
@@ -146,13 +171,14 @@ class _SignUpViewState extends State<SignUpView> {
       hintText: "Confirm Password",
       controller: txtConfirmPassword,
       obscureText: _isConfirmPasswordHidden,
-      validator: (value) => value == txtPassword.text ? null : 'Passwords do not match',
+      validator: (value) =>
+          value == txtPassword.text ? null : 'Passwords do not match',
       suffixIcon: IconButton(
-        icon: Icon(_isConfirmPasswordHidden 
-            ? Icons.visibility_off 
-            : Icons.visibility),
+        icon: Icon(
+          _isConfirmPasswordHidden ? Icons.visibility_off : Icons.visibility,
+        ),
         onPressed: () => setState(
-          () => _isConfirmPasswordHidden = !_isConfirmPasswordHidden),
+            () => _isConfirmPasswordHidden = !_isConfirmPasswordHidden),
       ),
     );
   }
@@ -169,15 +195,16 @@ class _SignUpViewState extends State<SignUpView> {
                 _showErrorSnackbar('Passwords do not match');
                 return;
               }
-              
+
               context.read<AuthBloc>().add(
-                RegisterRequestedUserEvent(
-                  name: txtName.text.trim(),
-                  email: txtEmail.text.trim(),
-                  mobno: txtMobile.text.trim(),
-                  password: txtPassword.text.trim(),
-                ),
-              );
+                    RegisterRequestedUserEvent(
+                      firstName: txtFirstName.text.trim(),
+                      lastName: txtLastName.text.trim(),
+                      email: txtEmail.text.trim(),
+                      mobno: txtMobile.text.trim(),
+                      password: txtPassword.text.trim(),
+                    ),
+                  );
             }
           },
         );
@@ -199,14 +226,16 @@ class _SignUpViewState extends State<SignUpView> {
               style: TextStyle(
                 color: TColor.secondaryText,
                 fontSize: 14,
-                fontWeight: FontWeight.w500),
+                fontWeight: FontWeight.w500,
+              ),
             ),
             TextSpan(
               text: "Login",
               style: TextStyle(
                 color: TColor.primary,
                 fontSize: 14,
-                fontWeight: FontWeight.w700),
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ],
         ),
