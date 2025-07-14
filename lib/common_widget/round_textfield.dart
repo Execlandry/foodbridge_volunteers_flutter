@@ -11,6 +11,7 @@ class RoundTextfield extends StatelessWidget {
   final Widget? left;
   final Widget? suffixIcon;
   final Function(String)? onChanged;
+  final String? Function(dynamic value)? validator;
 
   const RoundTextfield({
     super.key,
@@ -21,7 +22,8 @@ class RoundTextfield extends StatelessWidget {
     this.left,
     this.obscureText = false,
     this.suffixIcon,
-    this.onChanged, required String? Function(dynamic value) validator,
+    this.onChanged, 
+    this.validator
   });
 
   @override
