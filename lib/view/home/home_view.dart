@@ -130,21 +130,19 @@ class _HomeViewState extends State<HomeView> {
     return SafeArea(
       child: Scaffold(
         body: GradientBackground(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildHeaderSection(),
-                  const SizedBox(height: 24),
-                  _buildLocationSection(),
-                  const SizedBox(height: 24),
-                  _buildSearchSection(),
-                  const SizedBox(height: 32),
-                  _buildDeliverySection(),
-                ],
-              ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeaderSection(),
+                const SizedBox(height: 24),
+                _buildLocationSection(),
+                const SizedBox(height: 24),
+                _buildSearchSection(),
+                const SizedBox(height: 32),
+                Expanded(child: _buildDeliverySection()),
+              ],
             ),
           ),
         ),
@@ -300,30 +298,29 @@ class _HomeViewState extends State<HomeView> {
           onView: () => setState(() => _showAll = !_showAll),
         ),
         const SizedBox(height: 16),
-        BlocBuilder<DeliveryBloc, DeliveryState>(
-          builder: (context, state) {
-            if (state is DeliveryLoading) {
-              return _buildLoadingState();
-            } else if (state is DeliveryLoaded) {
-              return _buildDeliveryList(state.orders);
-            } else if (state is DeliveryError) {
-              return _buildErrorState(state.message);
-            }
-            return const SizedBox.shrink();
-          },
+        Expanded(
+          child: BlocBuilder<DeliveryBloc, DeliveryState>(
+            builder: (context, state) {
+              if (state is DeliveryLoading) {
+                return _buildLoadingState();
+              } else if (state is DeliveryLoaded) {
+                return _buildDeliveryList(state.orders);
+              } else if (state is DeliveryError) {
+                return _buildErrorState(state.message);
+              }
+              return const SizedBox.shrink();
+            },
+          ),
         ),
       ],
     );
   }
 
   Widget _buildLoadingState() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(vertical: 24),
-      child: Center(
-        child: CircularProgressIndicator(
-          strokeWidth: 2,
-          valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-        ),
+    return const Center(
+      child: CircularProgressIndicator(
+        strokeWidth: 2,
+        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
       ),
     );
   }
@@ -342,7 +339,6 @@ class _HomeViewState extends State<HomeView> {
     }
 
     return ListView.separated(
-      shrinkWrap: true,
       itemCount: filteredOrders.length,
       separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
@@ -366,9 +362,9 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildEmptyState() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 40),
+    return Center(
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
             Icons.delivery_dining_rounded,
@@ -399,36 +395,34 @@ class _HomeViewState extends State<HomeView> {
   }
 
   Widget _buildErrorState(String message) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 24),
-      child: Center(
-        child: Column(
-          children: [
-            Icon(
-              Icons.error_outline_rounded,
-              color: TColor.primary,
-              size: 40,
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline_rounded,
+            color: TColor.primary,
+            size: 40,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            "Oops! Something Went Wrong",
+            style: TextStyle(
+              color: TColor.primaryText,
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
             ),
-            const SizedBox(height: 16),
-            Text(
-              "Oops! Something Went Wrong",
-              style: TextStyle(
-                color: TColor.primaryText,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: TColor.secondaryText,
+              fontSize: 14,
             ),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: TColor.secondaryText,
-                fontSize: 14,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

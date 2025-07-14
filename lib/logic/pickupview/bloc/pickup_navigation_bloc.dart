@@ -73,11 +73,24 @@ class NavigatePickupBloc extends Bloc<NavigatePickupEvent, NavigatePickupState> 
   Future<void> _onVerifyOtp(
       VerifyOtpEvent event, Emitter<NavigatePickupState> emit) async {
     emit(NavigatePickupLoading());
+
+    if(event.otp.trim().isEmpty ) {
+      emit(NavigatePickupError("Please enter a OTP"));
+      return;
+    }
+    if (event.otp.length != 6 || !RegExp(r'^\d{6}$').hasMatch(event.otp)) {
+      emit(NavigatePickupError("OTP must be 6-digit number"));
+      return;
+    }
     try {
       await _repository.verifyOtpAtPickup(event.otp);
       emit(NavigatePickupOtpVerified());
+    }on DioException catch (dioErr) {
+    final errorMessage = dioErr.response?.data['message'] ?? 'Something went wrong';
+    emit(NavigatePickupError(errorMessage));
+    
     } catch (e) {
-      emit(NavigatePickupError(e.toString()));
+      emit(NavigatePickupError('Invalid OTP'));
     }
   }
 

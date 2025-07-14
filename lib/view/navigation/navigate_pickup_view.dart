@@ -179,15 +179,20 @@ class _NavigatePickupViewState extends State<NavigatePickupView> {
                       child: RoundTextfield(
                         hintText: "Enter 6-digit OTP",
                         controller: otpController,
-                        keyboardType: TextInputType.number,
-                        validator: (value) {
-                          if (value == null || value.isEmpty)
-                            return 'Enter OTP';
-                          if (value.length != 6) return 'Must be 6 digits';
-                          return null;
-                        },
+                        keyboardType: TextInputType.number, 
                       ),
                     ),
+                    if (state is NavigatePickupError)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 25),
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            state.message,
+                            style: TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      ),
                     const SizedBox(height: 20),
                     if (state is NavigatePickupLoading)
                       const Center(child: CircularProgressIndicator())
@@ -197,28 +202,14 @@ class _NavigatePickupViewState extends State<NavigatePickupView> {
                         child: RoundButton(
                           title: "Order Collected",
                           onPressed: () {
-                            final otp = otpController.text;
-                            if (otp.isEmpty || otp.length != 6) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text('Please enter a valid OTP')),
-                              );
-                              return;
-                            }
+                            final otp = otpController.text.trim();
                             context.read<NavigatePickupBloc>().add(
                                   VerifyOtpEvent(otp),
                                 );
                           },
                         ),
                       ),
-                    if (state is NavigatePickupError)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 25),
-                        child: Text(
-                          state.message,
-                          style: TextStyle(color: Colors.red),
-                        ),
-                      ),
+                    
                     const SizedBox(height: 20),
                   ],
                 );

@@ -201,16 +201,68 @@ class _ActiveDeliveryState extends State<ActiveDelivery> {
                                     'Recipient:',
                                     capitalizeWords(
                                       '${order.address?.user?.firstName ?? ''} '
-                                              '${order.address?.user?.lastName ?? ''}'
-                                          .trim()
-                                          .isEmpty
-                                      ? 'N/A'
-                                      : '${order.address?.user?.firstName ?? ''} '
-                                          '${order.address?.user?.lastName ?? ''}'.trim(),
+                                                  '${order.address?.user?.lastName ?? ''}'
+                                              .trim()
+                                              .isEmpty
+                                          ? 'N/A'
+                                          : '${order.address?.user?.firstName ?? ''} '
+                                                  '${order.address?.user?.lastName ?? ''}'
+                                              .trim(),
                                     ),
                                   ),
-                                  _buildInfoRow('Contact:',
-                                      order.address?.user?.mobno ?? 'N/A'),
+                                  Padding(
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 8),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(
+                                          width: 100,
+                                          child: Text(
+                                            'Contact:',
+                                            style: TextStyle(
+                                              color: TColor.secondaryText,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              final mobno =
+                                                  order.address?.user?.mobno;
+                                              if (mobno != null &&
+                                                  mobno.isNotEmpty) {
+                                                launchDialer(mobno);
+                                              }
+                                            },
+                                            child: Row(
+                                              children: [
+                                                const Icon(Icons.phone,
+                                                    color: Colors.green,
+                                                    size: 16),
+                                                const SizedBox(width: 8),
+                                                Text(
+                                                  order.address?.user?.mobno ??
+                                                      'N/A',
+                                                  style: TextStyle(
+                                                    color: TColor.primaryText,
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w600,
+                                                    decoration: TextDecoration
+                                                        .underline,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                   _buildInfoRow(
                                     'Address:',
                                     '${capitalizeWords(order.address?.street ?? '')}, '
@@ -248,8 +300,59 @@ class _ActiveDeliveryState extends State<ActiveDelivery> {
                                           fontWeight: FontWeight.w600),
                                     ),
                                     const SizedBox(height: 8),
-                                    _buildInfoRow('Contact:',
-                                        order.business!.contactNo ?? 'N/A'),
+                                    Padding(
+                                    padding:
+                                        const EdgeInsets.symmetric(vertical: 8),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        SizedBox(
+                                          width: 100,
+                                          child: Text(
+                                            'Contact:',
+                                            style: TextStyle(
+                                              color: TColor.secondaryText,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: GestureDetector(
+                                            onTap: () {
+                                              final mobno =
+                                                  order.address?.user?.mobno;
+                                              if (mobno != null &&
+                                                  mobno.isNotEmpty) {
+                                                launchDialer(mobno);
+                                              }
+                                            },
+                                            child: Row(
+                                              children: [
+                                                const Icon(Icons.phone,
+                                                    color: Colors.green,
+                                                    size: 16),
+                                                const SizedBox(width: 8),
+                                                Text(
+                                                  order.business!.contactNo ??
+                                                      'N/A',
+                                                  style: TextStyle(
+                                                    color: TColor.primaryText,
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w600,
+                                                    decoration: TextDecoration
+                                                        .underline,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                     _buildInfoRow(
                                       'Address:',
                                       '${capitalizeWords(order.business!.address?.street ?? '')}, '
@@ -274,7 +377,8 @@ class _ActiveDeliveryState extends State<ActiveDelivery> {
                                             pickupLat:
                                                 order.business?.latitude ?? 0.0,
                                             pickupLng:
-                                                order.business?.longitude ?? 0.0,
+                                                order.business?.longitude ??
+                                                    0.0,
                                             dropLat: order.address?.lat ?? 0.0,
                                             dropLng: order.address?.long ?? 0.0,
                                             amount: order.amount ?? 0.00,
@@ -282,7 +386,8 @@ class _ActiveDeliveryState extends State<ActiveDelivery> {
                                           ),
                                         ));
                                   },
-                                  child: const Chip(label: Text("Navigate Maps")),
+                                  child:
+                                      const Chip(label: Text("Navigate Maps")),
                                 ),
                               ],
                             ),
